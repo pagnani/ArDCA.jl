@@ -1,5 +1,20 @@
 module ArDCA
 
-# Write your package code here.
+using Random: randperm
+using SharedArrays: SharedArray,sdata 
+using Distributed: @distributed   
+using Printf: @printf 
+using LinearAlgebra: rmul!
+using ExtractMacro: @extract
+using NLopt: Opt,ftol_abs!,xtol_rel!,xtol_abs!,ftol_rel!,maxeval!,min_objective!,optimize
+using Distributions: wsample
+using LoopVectorization: @avx 
+using GaussDCA: read_fasta_alignment,remove_duplicate_seqs,compute_weights
 
-end
+export ardca,ArVar,ArAlg,ArNet,sample
+
+include("types.jl")
+include("ar.jl")
+include("utils.jl")
+
+end # end module
