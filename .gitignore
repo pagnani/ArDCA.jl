@@ -1,6 +1,6 @@
 *.jl.*.cov
 *.jl.cov
 *.jl.mem
-/Manifest.toml
+#/Manifest.toml remove it when GaussDCA is registered.
 /docs/build/
 .vscode
