@@ -55,8 +55,12 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Pkg
-            Pkg.develop(PackageSpec(path=pwd()))
-            Pkg.instantiate()'
+            if isfile("Manifest.toml")
+              Pkg.activate(pwd())
+            else
+              Pkg.develop(PackageSpec(path=pwd()))
+              Pkg.instantiate()
+            end'
       - run: |
           julia --project=docs -e '
             using Documenter: doctest
