@@ -1,5 +1,28 @@
 const allpermorder = [:NATURAL, :ENTROPIC, :REV_ENTROPIC, :RANDOM]
+"""
+    ardca(Z::Array{Ti,2},W::Vector{Float64}; kwds...)
+Auto-regressive analysis on the L×M alignment `Z` (numerically encoded in 1,…,21), and the `M`-dimensional normalized 
+weight vector `W`.
 
+Return two `struct`: `::ArNet` (containing the inferred hyperparameters) and `::ArVar`
+
+Optional arguments:
+* `fracmax::Real=0.3` maximum fraction of insert in the sequence
+* `remove_dups::Bool=true` if `true` remove duplicated sequences
+* `theta=:auto` if `:auto` compute reweighint automatically. Otherwise set a `Float64` value `0 ≤ theta ≤ 1`
+* `lambdaJ::Real=0.01` coupling L₂ regularization parameter (lagrange multiplier)
+* `lambdaH::Real=0.01` field L₂ regularization parameter (lagrange multiplier)
+* `epsconv::Real=1.0e-5` convergence value in minimzation
+* `maxit::Int=1000` maximum number of iteration in minimization
+* `verbose::Bool=true` set to `false` to stop printing convergence info on `stdout`
+* `method::Symbol=:LD_LBFGS` optimization strategy see [`NLopt.jl`](https://github.com/JuliaOpt/NLopt.jl) for other options
+* `permorder::Union{Symbol,Vector{Ti}}=:ENTROPIC` permutation order. Possible values are `:NATURAL,:ENTROPIC,:REV_ENTROPIC,:RANDOM` or a custom permutation vector
+
+# Examples
+```
+julia> arnet, arvar= ardca(Z,W,lambdaJ=0,lambdaH=0,permorder=:REV_ENTROPIC,epsconv=1e-12);
+```
+"""
 function ardca(Z::Array{Ti,2},W::Vector{Float64};
                 fracmax::Real=0.3,
                 remove_dups::Bool=true,
@@ -14,7 +37,6 @@ function ardca(Z::Array{Ti,2},W::Vector{Float64};
                 permorder::Union{Symbol,Vector{Ti}}=:ENTROPIC
                 ) where Ti <: Integer
 
-   
     checkpermorder(permorder)
     all(x -> x > 0, W) || throw(DomainError("vector W should normalized and with all positive elements"))
     isapprox(sum(W), 1) || throw(DomainError("sum(W) ≠ 1. Consider normalizing the vector W"))
@@ -24,19 +46,16 @@ function ardca(Z::Array{Ti,2},W::Vector{Float64};
     aralg = ArAlg(method, verbose, epsconv, maxit)
     arvar = ArVar(N, M, q, lambdaJ, lambdaH, Z, W, permorder)
     θ,psval = minimize_arnet(aralg, arvar)
-    #score, FN, Jtensor, htensor =  compute_score(Jmat, plmvar, min_separation)
-    #return ArOut(sdata(pslike), Jtensor, htensor, score)
-    ArNet(θ,arvar),arvar,psval
-    #return θ,psval,arvar
-    #return aralg,arvar
+    ArNet(θ,arvar),arvar
 end
-
-function checkpermorder(po::Symbol)
-    po ∈ allpermorder || error("permorder :$po not iplemented: only $allpermorder are defined");
-end
-
-(checkpermorder(po::Vector{Ti}) where Ti <: Integer) = isperm(po) || error("permorder is not a permutation")
-
+"""
+    ardca(filename::String; kwds...)
+Run [`ardca`](@ref) on the fasta alignment in `filename`
+# Examples
+```jldoctest
+julia> arnet, arvar =  ardca("pf14.fasta", permorder=:ENTROPIC)
+```
+"""
 function ardca(filename::String;
                 theta::Union{Symbol,Real}=:auto,
                 max_gap_fraction::Real=0.9,
@@ -45,6 +64,12 @@ function ardca(filename::String;
     W, Z, N, M, q = read_fasta(filename, max_gap_fraction, theta, remove_dups)
     ardca(Z, W; kwds...)
 end
+
+function checkpermorder(po::Symbol)
+    po ∈ allpermorder || error("permorder :$po not iplemented: only $allpermorder are defined");
+end
+
+(checkpermorder(po::Vector{Ti}) where Ti <: Integer) = isperm(po) || error("permorder is not a permutation")
 
 function minimize_arnet(alg::ArAlg, var::ArVar{Ti}) where Ti
     @extract var : N q q2

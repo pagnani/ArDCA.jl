@@ -48,17 +48,15 @@ end
 
 function testDCA(N,q;
                  verbose::Bool=false,
-                 epsconv::Real=1e20,
+                 epsconv::Real=1e-50,
                  lambdaJ::Real=0.0,
                  lambdaH::Real=0.0,
-                 asym::Bool=true,
-                 maxit::Integer=1000,
+                 maxit::Integer=10000,
                  method::Symbol=:LD_LBFGS,
-                 epstest::Real=1e-5,
                  permorder::Union{Symbol,Vector{Int}}=:NATURAL)
 
     W, Z, J, h = generateWZJh(N, q)
-    arnet, arvar, psval = ardca(Z,W,
+    arnet, arvar = ardca(Z,W,
                     lambdaJ=lambdaJ,
                     lambdaH=lambdaH,
                     epsconv=epsconv,
@@ -66,18 +64,18 @@ function testDCA(N,q;
                     maxit=maxit,
                     method=method,
                     permorder=permorder)
-    
-    #Jzsg, hzsg = PottsGauge.gauge(J, h, ZeroSumGauge())
-    
-    @test 10 * log10(sum(abs2, (sum(log.(arnet(arvar)), dims=1) |> vec .|> exp) - W) / length(W)) < 70
-    arnet,arvar,psval,J,h,W,Z
-end
 
-for order in [:NATURAL, :ENTROPIC, :REV_ENTROPIC, :RANDOM]
-    for q in 2:3:4
-        for N in 2:5
-            testDCA(N, q, permorder=order)
-        end 
+    
+    dBval = 10 * log10(sum(abs2, (sum(log.(arnet(arvar)), dims=1) |> vec .|> exp) - W) / length(W))
+    println("testing N=$N\tq=$q\tpermorder=$permorder\tΔ=$dBval [dB]")
+    @test dBval < -60
+end
+for q in 2:4
+    for N in 2:5
+        for order in [:NATURAL,:RANDOM, :ENTROPIC, :REV_ENTROPIC]
+            testDCA(N, q, permorder=order,epsconv=1e-20)
+        end
+        println()
     end
 end
 printstyled("All TestDCA passed!\n",color=:light_green,bold=true)

@@ -94,29 +94,40 @@ function (A::ArNet)(arvar::ArVar)
     @extract A : J H p0 idxperm
     @extract arvar : Z q N M
     backorder=sortperm(idxperm)
-    output = @distributed hcat for i in 1:M
-        vx = @view Z[:,i]        
-        _outputarnet(vx, J, H, p0, N, q)
+    output = @distributed hcat for i in 1:M     
+        _outputarnet(Z[:,i], J, H, p0, N, q)
     end
     permuterow!(output,backorder)
 end
 
-function _outputarnet(xs, J, H, p0, N, q)
-    x = sdata(xs)
-    dest = zeros(N)
-    dest[1] = p0[x[1]]
-    totH = zeros(q)
-    @inbounds for site in 1:N-1
-        Js = J[site]
-        h = H[site]
-        for a in 1:q
-            totH[a] = 0.0
-            @simd for i in 1:site
-                totH[a] += Js[a,x[i],i]
-            end
-            totH[a] += h[a]
-        end
-        dest[site+1]=softmax(totH)[x[site+1]]
-    end
-    dest
+function _outputarnet( xs, J, H, p0, N, q)
+    dest = Vector{Float64}(undef,N)
+    _outputarnet!(dest, xs, J, H, p0, N, q)
 end
+
+let DtotH = Dict{Int,Vector{Float64}}()
+    global _outputarnet!
+    function _outputarnet!(dest, xs, J, H, p0, N, q)
+        x = sdata(xs)
+        dest[1] = p0[x[1]]
+        totH = Base.get!(DtotH,q,Vector{Float64}(undef,q))
+        #fill!(totH,0.0)
+        @inbounds for site in 1:N-1
+            Js = J[site]
+            h = H[site]
+            copy!(totH,h)
+            @avx for i in 1:site
+                for a in 1:q
+                    totH[a] += Js[a,x[i],i]
+                end
+            end
+            softmax!(totH)
+            dest[site+1]=totH[x[site+1]]
+        end
+        dest
+    end
+end
+
+
+
+

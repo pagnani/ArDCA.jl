@@ -4,14 +4,16 @@ mutable struct AnalOut
     arvar
     resori::Union{PlmOut,Nothing}
     resgen::Union{PlmOut,Nothing}
+    resdca::Union{Nothing,Array{Tuple{Int64,Int64,Float64}}}
     rocori::Union{Nothing,Array{Tuple{Int64,Int64,Float64,Float64}}}
     rocgen::Union{Nothing,Array{Tuple{Int64,Int64,Float64,Float64}}}
+    rocdca::Union{Nothing,Array{Tuple{Int64,Int64,Float64,Float64}}}
     Zgen::Union{Nothing,Array{Int,2}}
 end
 
 function runardca!(out, familyid; kwds...)
     filefasta = joinpath(familyid,filter(x->endswith(x,".fasta"), readdir(familyid))[1])
-    arnet,arvar,_=ardca(filefasta; kwds...)
+    arnet,arvar=ardca(filefasta; kwds...)
     out.arnet, out.arvar = arnet,arvar
 end
 
@@ -23,25 +25,26 @@ function sample_and_analyze_results!(out::AnalOut,familyid::String; theta=:auto,
     Wgen,Zgen= ArDCA.sample_with_weights(out.arnet,M)
     out.Zgen = Zgen
     out.resgen = plmdca_asym(Zgen,ones(size(Zgen,2))./size(Zgen,2))
-    #out.resgen = plmdca_asym(Zgen,Wgen)
-    out.rocgen = computescore(out.resgen,filescore)
+    out.resdca = epistatic_score(out.arnet,out.arvar,1)
+    out.rocgen = computescore(out.resgen.score,filescore)
+    out.rocdca = computescore(out.resdca,filescore)
     if out.resori === nothing 
         out.resori = plmdca_asym(filefasta, theta=theta)
-        out.rocori = computescore(out.resori,filescore)
+        out.rocori = computescore(out.resori.score,filescore)
     end
     nothing
 end
 
-function computescore(res::PlmOut,filedist::String; mindist::Int=4, cutoff::Float64=7.0)
+function computescore(score,filedist::String; mindist::Int=4, cutoff::Float64=7.0)
     d = readdlm(filedist)
     dist = Dict((round(Int,d[i,1]),round(Int,d[i,2])) => d[i,4] for i in 1:size(d,1))
-    nc2 = length(res.score)
+    nc2 = length(score)
     #nc2 == size(d,1) || throw(DimensionMismatch("incompatible length $nc2 $(size(d,1))"))
     out = Tuple{Int,Int,Float64,Float64}[]
     ctrtot = 0
     ctr = 0
     for i in 1:nc2
-        sitei,sitej,plmscore = res.score[i][1],res.score[i][2], res.score[i][3]
+        sitei,sitej,plmscore = score[i][1],score[i][2], score[i][3]
         dij = if haskey(dist,(sitei,sitej)) 
             dist[(sitei,sitej)]
         else
@@ -64,7 +67,8 @@ function plotres(out; xlim=(),scale=:log)
     close("all") 
     plotfun(map(x->x[4],out.rocori))
     plotfun(map(x->x[4],out.rocgen))
-    plt.legend(["plm","generated  λJ = $lJ λH=$lH"])
+    plotfun(map(x->x[4],out.rocdca))
+    plt.legend(["plm","generated  λJ = $lJ λH=$lH","dca score"])
     plt.xlim(xlim...)
 end
 #plmpfam = plmdca_asym(filefasta); #compute score from original data
