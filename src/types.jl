@@ -7,10 +7,10 @@ struct ArVar{Ti <: Integer}
     lambdaH::Float64
     Z::SharedArray{Ti,2}
     W::SharedArray{Float64,1}
-    IdxZ::SharedArray{Ti,2} # partial index computation to speed up energy calculation
-    idxperm::Array{Ti,1}
+    IdxZ::SharedArray{Int,2} # partial index computation to speed up energy calculation
+    idxperm::Array{Int,1}
     
-    function ArVar(N, M, q, lambdaJ, lambdaH, Z::Array{Ti,2}, W::Array{Float64,1}, permorder::Union{Symbol,Vector{Ti}}) where Ti <: Integer
+    function ArVar(N, M, q, lambdaJ, lambdaH, Z::Array{Ti,2}, W::Array{Float64,1}, permorder::Union{Symbol,Vector{Int}}) where Ti <: Integer
         idxperm = if typeof(permorder) == Symbol
             S = entropy(Z,W)
             if permorder === :ENTROPIC
@@ -36,27 +36,29 @@ struct ArVar{Ti <: Integer}
         sW = SharedArray{Float64}(size(W))
         sW[:] = W
         
-
-        IdxZ = Array{Ti,2}(undef, N, M)
+        IdxZ = Array{Int,2}(undef, N, M)
         q2 = q * q
         for i in 1:M
             for j in 1:N
-                IdxZ[j,i] = Ti(j - 1) * Ti(q2) + Ti(q) * (Z[j,i] - one(Ti))
+                IdxZ[j,i] = (j - 1) * q2 + q * (Z[j,i] - 1)
             end
         end
-        sIdxZ = SharedArray{Ti}(size(IdxZ))
+        sIdxZ = SharedArray{Int}(size(IdxZ))
         sIdxZ[:] = IdxZ
         new{Ti}(N, M, q, q^2, lambdaJ, lambdaH, sZ, sW, sIdxZ,idxperm)
     end
 end
 
+function Base.show(io::IO, arvar::ArVar)
+    @extract arvar : N M q lambdaJ lambdaH Z
+    print(io,"ArVar [N=$N M=$M q=$q λJ = $lambdaJ λH = $lambdaH Z::$(eltype(Z))]")
+end
 struct ArAlg
     method::Symbol
     verbose::Bool
     epsconv::Float64
     maxit::Int
 end
-
 struct ArNet
     idxperm::Array{Int,1}
     p0::Array{Float64,1}
@@ -65,6 +67,12 @@ struct ArNet
 end
 
 ArNet(θ,var::ArVar) = ArNet(var.idxperm, unpack_params(θ, var)...)
+
+function Base.show(io::IO, arnet::ArNet)
+    N = length(arnet.idxperm)
+    q = length(arnet.H[1])
+    print(io,"ArNet [N=$N q=$q]")
+end
 
 function (A::ArNet)(x::AbstractVector{T}) where T <: Integer 
     @extract A:J H p0 idxperm

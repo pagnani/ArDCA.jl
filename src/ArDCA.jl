@@ -9,7 +9,7 @@ using ExtractMacro: @extract
 using NLopt: Opt,ftol_abs!,xtol_rel!,xtol_abs!,ftol_rel!,maxeval!,min_objective!,optimize
 using Distributions: wsample
 using LoopVectorization: @avx 
-using GaussDCA: read_fasta_alignment,remove_duplicate_seqs,compute_weights
+using CorrDCA: read_fasta_alignment,remove_duplicate_sequences,compute_weights
 
 export ardca,ArVar,ArAlg,ArNet,sample,sample_with_weights,epistatic_score
 

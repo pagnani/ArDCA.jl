@@ -63,6 +63,14 @@ git-tree-sha1 = "8e695f735fca77e9708e795eda62afdb869cbb70"
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
 version = "0.3.4+0"
 
+[[CorrDCA]]
+deps = ["Distributed", "FastaIO", "SharedArrays"]
+git-tree-sha1 = "584c9da092cc68e1ced266fff74f45cac93901c2"
+repo-rev = "neweight"
+repo-url = "https://github.com/pagnani/CorrDCA.git"
+uuid = "71fba74b-94bb-4624-adc3-6f657ac12af8"
+version = "0.1.0"
+
 [[DataAPI]]
 git-tree-sha1 = "ad84f52c0b8f05aa20839484dbaf01690b41ff84"
 uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
@@ -120,14 +128,6 @@ deps = ["Libdl"]
 git-tree-sha1 = "039be665faf0b8ae36e089cd694233f5dee3f7d6"
 uuid = "92fee26a-97fe-5a0c-ad85-20a5f3185b63"
 version = "0.5.1"
-
-[[GaussDCA]]
-deps = ["Compat", "Distributed", "FastaIO", "LinearAlgebra", "Printf", "Test"]
-git-tree-sha1 = "a034fa95751faec6753c6e6f705b1c1e9d02e5c9"
-repo-rev = "master"
-repo-url = "https://github.com/carlobaldassi/GaussDCA.jl.git"
-uuid = "bc09176e-aa47-5a77-a802-92a0219fe3db"
-version = "0.0.0"
 
 [[HTTP]]
 deps = ["Base64", "Dates", "IniFile", "MbedTLS", "Sockets", "URIs"]
