@@ -53,7 +53,6 @@ end
     ardca(filename::String; kwds...)
 Run [`ardca`](@ref) on the fasta alignment in `filename`
 # Examples
-```jldoctest
 julia> arnet, arvar =  ardca("pf14.fasta", permorder=:ENTROPIC)
 ```
 """
