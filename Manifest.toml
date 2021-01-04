@@ -65,9 +65,7 @@ version = "0.3.4+0"
 
 [[CorrDCA]]
 deps = ["Distributed", "FastaIO", "SharedArrays"]
-git-tree-sha1 = "584c9da092cc68e1ced266fff74f45cac93901c2"
-repo-rev = "neweight"
-repo-url = "https://github.com/pagnani/CorrDCA.git"
+git-tree-sha1 = "bdc0ae3a64995357d6049662a239bbeb0a0673ae"
 uuid = "71fba74b-94bb-4624-adc3-6f657ac12af8"
 version = "0.1.0"
 
