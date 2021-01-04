@@ -46,6 +46,7 @@ function ardca(Z::Array{Ti,2},W::Vector{Float64};
     aralg = ArAlg(method, verbose, epsconv, maxit)
     arvar = ArVar(N, M, q, lambdaJ, lambdaH, Z, W, permorder)
     θ,psval = minimize_arnet(aralg, arvar)
+    Base.GC.gc() # something wrong with SharedArrays on Mac
     ArNet(θ,arvar),arvar
 end
 """
