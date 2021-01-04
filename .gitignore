@@ -1,7 +1,7 @@
 *.jl.*.cov
 *.jl.cov
 *.jl.mem
-#/Manifest.toml remove it when GaussDCA is registered.
+/Manifest.toml
 /docs/build/
 .vscode
 notebook/.ipynb_checkpoints
