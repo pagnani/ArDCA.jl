@@ -17,6 +17,8 @@ SharedArrays = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
 
 [compat]
 Distributions = "0.24"
+NLopt = "0.6"
+LoopVectorization = "0.9"
 julia = "1.5"
 
 [extras]
