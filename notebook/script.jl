@@ -102,3 +102,37 @@ function write_score(filedest::String,out::AnalOut)
     end
     close(fp)
 end
+
+function runall(PFfile::String)
+
+    datadir=joinpath(ENV["HOME"],"Dropbox","five families autoregressive")
+
+    familyid = joinpath(datadir,PFfile)
+    fileal = joinpath(familyid,filter(x->endswith(x,".fasta"), readdir(familyid))[1])
+    filedist = joinpath(familyid, "tab_cont")
+    #filedist = """/Users/pagnani/Dropbox/five families autoregressive/PF76/tab_cont"""
+    #fileal =  """/Users/pagnani/Dropbox/five families autoregressive/PF76/PF00076_mgap6.fasta"""
+    #return isfile(filedist),isfile(fileal)
+    resplm = plmdca(fileal)
+    rocplm = computescore(resplm.score,filedist)
+    arnet,arvar=ardca(fileal,verbose=true,permorder=:ENTROPIC, lambdaJ=0.02,lambdaH=0.001) 
+    arscore=ArDCA.epistatic_score(arnet,arvar,1, pc=0.1) 
+    rocar = computescore(arscore,filedist);
+    arnet1,arvar1=ardca(fileal,verbose=true,permorder=:ENTROPIC, lambdaJ=0.0001,lambdaH=0.0001);
+    Zgen=sample(arnet1,arvar.M)
+    resgen=plmdca(Zgen,ones(size(Zgen,2))./size(Zgen,2))
+    rocgen=computescore(resgen.score, filedist)
+    close("all"); 
+    semilogx(map(x->x[4],rocplm))
+    semilogx(map(x->x[4],rocgen))
+    semilogx(map(x->x[4],rocar))
+    plt.legend(["plmDCA on alignment","plmDCA on generated","ΔΔE score"])
+    gcf()
+    return AnalOut(arnet,arvar,
+                    resplm,
+                    resgen,
+                    arscore, 
+                    rocplm,
+                    rocgen,
+                    rocar,Zgen)
+end
