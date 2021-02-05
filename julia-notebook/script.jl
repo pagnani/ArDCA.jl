@@ -12,14 +12,14 @@ mutable struct AnalOut
 end
 
 function runardca!(out, familyid; kwds...)
-    filefasta = joinpath(familyid,filter(x->endswith(x,".fasta"), readdir(familyid))[1])
+    filefasta = joinpath(familyid,filter(x->endswith(x,".fasta.gz"), readdir(familyid))[1])
     arnet,arvar=ardca(filefasta; kwds...)
     out.arnet, out.arvar = arnet,arvar
 end
 
 function sample_and_analyze_results!(out::AnalOut,familyid::String; theta=:auto,Msample=nothing)
     #resnet,resori,resgen,rocori,rocgen = out.resnet, out.resori, out.resgen,out.rocori, out.rocgen
-    filefasta = joinpath(familyid,filter(x->endswith(x,".fasta"), readdir(familyid))[1])
+    filefasta = joinpath(familyid,filter(x->endswith(x,".fasta.gz"), readdir(familyid))[1])
     filescore = joinpath(familyid, "tab_cont")
     M = Msample===nothing ? out.arvar.M : Msample
     Wgen,Zgen= ArDCA.sample_with_weights(out.arnet,M)
@@ -110,9 +110,7 @@ function runall(PFfile::String)
     familyid = joinpath(datadir,PFfile)
     fileal = joinpath(familyid,filter(x->endswith(x,".fasta"), readdir(familyid))[1])
     filedist = joinpath(familyid, "tab_cont")
-    #filedist = """/Users/pagnani/Dropbox/five families autoregressive/PF76/tab_cont"""
-    #fileal =  """/Users/pagnani/Dropbox/five families autoregressive/PF76/PF00076_mgap6.fasta"""
-    #return isfile(filedist),isfile(fileal)
+
     resplm = plmdca(fileal)
     rocplm = computescore(resplm.score,filedist)
     arnet,arvar=ardca(fileal,verbose=true,permorder=:ENTROPIC, lambdaJ=0.02,lambdaH=0.001) 

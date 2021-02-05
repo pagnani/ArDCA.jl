@@ -6,5 +6,5 @@ docs/build/
 docs/pdf/build/
 docs/site/
 .vscode
-julia-notebook/.ipynb_checkpoints
+julia-notebook/*-checkpoints.ipynb
 python-notebook/.ipynb_checkpoints
