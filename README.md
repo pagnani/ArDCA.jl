@@ -6,7 +6,7 @@
 [![Coverage](https://codecov.io/gh/pagnani/ArDCA/branch/master/graph/badge.svg)](https://codecov.io/gh/pagnani/ArDCA)
 
 
-Autoregressive protein model learning through generalized logistic regression.
+Autoregressive protein model learning through generalized logistic regression in Julia.
 ## Overview
 
 Protein families are given in form of multiple sequence alignments (MSA).
@@ -18,5 +18,5 @@ julia> using Pkg; Pkg.add("https://github.com/pagnani/ArDCA");
 ```
 ## Requirements
 
-The minimal julia version is 1.5
+The minimal Julia version is 1.5
 

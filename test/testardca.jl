@@ -53,7 +53,8 @@ function testDCA(N,q;
                  lambdaH::Real=0.0,
                  maxit::Integer=10000,
                  method::Symbol=:LD_LBFGS,
-                 permorder::Union{Symbol,Vector{Int}}=:NATURAL)
+                 permorder::Union{Symbol,Vector{Int}}=:NATURAL,
+                 dBthreshold::Real=-40)
 
     W, Z, J, h = generateWZJh(N, q)
     arnet, arvar = ardca(Z,W,
@@ -68,7 +69,7 @@ function testDCA(N,q;
     
     dBval = 10 * log10(sum(abs2, (sum(log.(arnet(arvar)), dims=1) |> vec .|> exp) - W) / length(W))
     println("testing N=$N\tq=$q\tpermorder=$permorder\tΔ=$dBval [dB]")
-    @test dBval < -60
+    @test dBval < dBthreshold
 end
 for q in 2:4
     for N in 2:5
