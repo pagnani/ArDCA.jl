@@ -1,7 +1,10 @@
 *.jl.*.cov
 *.jl.cov
 *.jl.mem
-/Manifest.toml
-/docs/build/
+Manifest.toml
+docs/build/
+docs/pdf/build/
+docs/site/
 .vscode
-notebook/.ipynb_checkpoints
+julia-notebook/.ipynb_checkpoints
+python-notebook/.ipynb_checkpoints
