@@ -185,14 +185,15 @@ function permuterow!(x::AbstractVector, p::Vector)
 end
 
 # warning the gauge of H[:,1] is to be determined !!
-function tensorize(arnet::ArNet) 
+function tensorize(arnet::ArNet; tiny::Float64=1e-16) 
     @extract arnet:J H idxperm p0
     N = length(idxperm)
     q = length(H[1])
+    p0pc = (1.0-tiny)*p0 .+ tiny/q
     outJ = zeros(q, q, N, N)
     outH = zeros(q, N)
-    shiftH0 = sum(log.(p0)) / q
-    outH[:,idxperm[1]] .= log.(p0) .- shiftH0
+    shiftH0 = sum(log.(p0pc)) / q
+    outH[:,idxperm[1]] .= log.(p0pc) .- shiftH0
     for i in 1:N - 1
         si = idxperm[i + 1]
         Js = J[i]

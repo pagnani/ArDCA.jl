@@ -86,13 +86,13 @@ end
 
 function (A::ArNet)(x::AbstractMatrix{T}) where T <: Integer 
     @extract A : J H p0 idxperm
+    dx = sdata(x)
     backorder = sortperm(idxperm)
-    N, M = size(x)
+    N, M = size(dx)
     length(H) == N - 1 || throw(DimensionMismatch("incompatible size between input and fields"))
     q = length(p0)
-    permuterow!(x,idxperm)
     output = @distributed hcat for i in 1:M
-        vx = @view x[:,i]        
+        vx = @view dx[:,i]        
         _outputarnet(vx, J, H, p0, N, q)
     end
     permuterow!(output,backorder)
