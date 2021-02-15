@@ -8,8 +8,12 @@
 
 Autoregressive protein model learning through generalized logistic regression in Julia.
 ## Overview
+This is the which accompanies the paper "xxx", by Jeanne Trinquier, Guido Uguzzoni, Andrea Pagnani, Francesco Zamponi, and Martin Weigt.
 
-Protein families are given in form of multiple sequence alignments (MSA).
+See also [this Wikipedia article](https://en.wikipedia.org/wiki/Direct_coupling_analysis) article for a general overview of the Direct Coupling Analysis technique. 
+
+The code is written in [Julia](https://www.julialang.org/).
+
 ## Install
 
 To install just use the package manager and do a
