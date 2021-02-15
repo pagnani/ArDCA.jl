@@ -8,7 +8,8 @@
 
 Autoregressive protein model learning through generalized logistic regression in Julia.
 ## Overview
-This is the which accompanies the paper "xxx", by Jeanne Trinquier, Guido Uguzzoni, Andrea Pagnani, Francesco Zamponi, and Martin Weigt.
+
+The authors of this code are Jeanne Trinquier, Guido Uguzzoni, Andrea Pagnani, Francesco Zamponi, and Martin Weigt.
 
 See also [this Wikipedia article](https://en.wikipedia.org/wiki/Direct_coupling_analysis) article for a general overview of the Direct Coupling Analysis technique. 
 
