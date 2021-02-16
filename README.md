@@ -17,10 +17,11 @@ The code is written in [Julia](https://www.julialang.org/).
 
 ## Install
 
-To install just use the package manager and do a
+To install the package, enter in Pkg mode by pressing the <kbd>]</kbd> key,
+then in the pkg prompt enter
 
 ```
-julia> using Pkg; Pkg.add("https://github.com/pagnani/ArDCA");
+julia> using Pkg; Pkg.add("https://github.com/pagnani/ArDCA"); 
 ```
 ## Notebooks
 
