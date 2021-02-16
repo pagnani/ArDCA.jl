@@ -25,6 +25,7 @@ struct ArVar{Ti <: Integer}
                 error("the end of the world has come")
             end
         elseif typeof(permorder) <: Vector
+            (length(permorder) != N) && error("length permorder ≠ $N")
             isperm(permorder) && (permorder)
         else
             error("permorder can only be a Symbol or a Vector")
