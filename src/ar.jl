@@ -34,7 +34,7 @@ function ardca(Z::Array{Ti,2},W::Vector{Float64};
                 maxit::Int=1000,
                 verbose::Bool=true,
                 method::Symbol=:LD_LBFGS,
-                permorder::Union{Symbol,Vector{Ti}}=:ENTROPIC
+                permorder::Union{Symbol,Vector{Int}}=:ENTROPIC
                 ) where Ti <: Integer
 
     checkpermorder(permorder)
