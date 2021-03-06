@@ -15,7 +15,7 @@ See the [Index](@ref index) for the complete list of documented functions and ty
 
 ## Overview
 
-Protein families are given in form of multiple sequence alignments (MSA) $D = (a^m_i |i = 1,\dots,L;\,m = 1,\dots,M)$ of $M$ proteins of aligned length $L$. The entries $a^m_i$ equal either one of the standard 20 amino acids, or the alignment gap $–$. In total, we have $q = 21$ possible different symbols in D. The aim of unsupervised generative modeling is to earn a statistical model $P(a1,\dots,a_L)$ of (aligned) full-length sequences, which faithfully reflects the variability found in $D$: sequences belonging to the protein family of interest should have comparably high probabilities, unrelated sequences very small probabilities.
+Protein families are given in form of multiple sequence alignments (MSA) $D = (a^m_i |i = 1,\dots,L;\,m = 1,\dots,M)$ of $M$ proteins of aligned length $L$. The entries $a^m_i$ equal either one of the standard 20 amino acids, or the alignment gap $–$. In total, we have $q = 21$ possible different symbols in D. The aim of unsupervised generative modeling is to earn a statistical model $P(a_1,\dots,a_L)$ of (aligned) full-length sequences, which faithfully reflects the variability found in $D$: sequences belonging to the protein family of interest should have comparably high probabilities, unrelated sequences very small probabilities.
 Here we propose a computationally efficient approach based on autoregressive models. 
 
 We start from the exact decomposition:
