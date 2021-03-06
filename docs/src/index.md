@@ -33,6 +33,21 @@ $z_i(a_1,\dots,a_{i-1})= \sum_{a=1}^{q} \exp \left\{ h_i(a) + \sum_{j=1}^{i-1} J
 is a the normalization factor. In machine learning, this
 parametrization is known as soft-max regression, the generalization of logistic regression to multi-class labels.
 
+# Usage
+
+The typical pipeline to use the package is:
+
+* Compute ArDCA parameters from a multiple sequence alignment:
+
+``` 
+julia> arnet,arvar=ardca(filefasta; kwds...)
+```
+
+* Generate `100` new sequences, and store it in an $L\times 100$ array of integers.
+
+```
+julia> Zgen =  sample(arnet,100);
+```
 
 ## [Index](@id index)
 ```@index
