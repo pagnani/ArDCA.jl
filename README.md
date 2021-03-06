@@ -27,7 +27,15 @@ julia> using Pkg; Pkg.add("https://github.com/pagnani/ArDCA");
 
 There are two `jupyter` notebooks (Python, and Julia) to help using the Package.
 
+## Data 
+
+Data for five protein families (PF00014,PF00072, PF00076,PF00595,PF13354) are contained in the companion
+[ArDCAData](https://github.com/pagnani/ArDCAData) package.
+
 ## Requirements
 
-The minimal Julia version is 1.5
+The minimal Julia version to run this code is 1.5.
 
+## License
+
+This project is covered under the MIT License.
