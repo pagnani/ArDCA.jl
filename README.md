@@ -4,7 +4,7 @@
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://pagnani.github.io/ArDCA/dev)
 [![Build Status](https://github.com/pagnani/ArDCA/workflows/CI/badge.svg)](https://github.com/pagnani/ArDCA/actions)
 [![Coverage](https://codecov.io/gh/pagnani/ArDCA/branch/master/graph/badge.svg)](https://codecov.io/gh/pagnani/ArDCA)
-[[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 
 Autoregressive protein model learning through generalized logistic regression in Julia.
