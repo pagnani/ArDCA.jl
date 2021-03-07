@@ -28,10 +28,14 @@ julia> using Pkg; Pkg.add("https://github.com/pagnani/ArDCA");
 
 There are two `jupyter` notebooks (Python, and Julia) to help using the Package.
 
+The [tutorial.ipynb](julia-notebook/tutorial.ipynb) is for the julia version.
+
 ## Data 
 
 Data for five protein families (PF00014,PF00072, PF00076,PF00595,PF13354) are contained in the companion
 [ArDCAData](https://github.com/pagnani/ArDCAData) package.
+
+For didactic reasons we include locally in the `data` folder, the PF00014 dataset.
 
 ## Requirements
 

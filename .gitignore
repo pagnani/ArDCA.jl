@@ -8,3 +8,4 @@ docs/site/
 .vscode
 julia-notebook/*-checkpoints.ipynb
 python-notebook/.ipynb_checkpoints
+.DS_Store
