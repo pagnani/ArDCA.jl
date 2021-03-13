@@ -18,8 +18,7 @@ The code is written in [Julia](https://www.julialang.org/).
 
 ## Install
 
-To install the package, enter in Pkg mode by pressing the <kbd>]</kbd> key,
-then in the pkg prompt enter
+To install the package,  from the repl enter
 
 ```
 julia> using Pkg; Pkg.add("https://github.com/pagnani/ArDCA"); 
@@ -29,6 +28,7 @@ julia> using Pkg; Pkg.add("https://github.com/pagnani/ArDCA");
 There are two `jupyter` notebooks (Python, and Julia) to help using the Package.
 
 The [tutorial.ipynb](julia-notebook/tutorial.ipynb) is for the julia version.
+The [arDCA_sklearn.ipynb](python-notebook/arDCA_sklearn.ipynb) is for the python version.
 
 ## Data 
 
@@ -40,6 +40,11 @@ For didactic reasons we include locally in the `data` folder, the PF00014 datase
 ## Requirements
 
 The minimal Julia version to run this code is 1.5.
+
+## Documentation
+
+[Stable version](https://pagnani.github.io/ArDCA/stable)
+[Development version](https://pagnani.github.io/ArDCA/dev)
 
 ## License
 

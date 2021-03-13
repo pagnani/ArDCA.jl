@@ -207,7 +207,6 @@ function tensorize(arnet::ArNet; tiny::Float64=1e-16)
     outJ, outH
 end
 
-
 """
     dms_single_site(arnet::ArNet, arvar::ArVar, seqid::Int; pc::Float64=0.1)
     
@@ -233,6 +232,7 @@ function dms_single_site(arnet::ArNet, arvar::ArVar, seqid::Int; pc::Float64=0.1
     arlike0 = zeros(N)
     _outputarnet!(arlike0,xori,J,H,ppc,N,q)
     ll0 = -sum(log.(arlike0)) 
+    
     @inbounds for i in idxnogap
         if xori[i] == 21
             continue
@@ -247,6 +247,7 @@ function dms_single_site(arnet::ArNet, arvar::ArVar, seqid::Int; pc::Float64=0.1
             end
         end
         xmut[i] = xori[i] #reset xmut to the original velue 
-    end  
-    return Da,setdiff(1:N,idxnogap)
+    end
+    invperm = sortperm(idxperm)
+    return Da[:,invperm],sort!(idxperm[setdiff(1:N,idxnogap)])
 end
