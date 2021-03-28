@@ -49,6 +49,16 @@ julia> arnet,arvar=ardca(filefasta; kwds...)
 julia> Zgen =  sample(arnet,100);
 ```
 
+# Multithreading
+
+To fully exploit the the multicore parallel computation, julia should be invoked with
+
+```
+$ julia -t nthreads # put here nthreads equal to the number of cores you want to use
+```
+
+If you want to set permanently the number of threads to the desired value, you can either create a default environment variable `export JULIA_NUM_THREADS=24` in your `.bashrc`. More information [here](https://docs.julialang.org/en/v1.6/manual/multi-threading/)
+
 # Tutorial
 
 We will assume we have a Multiple Sequence Alignment (MSA)in FASTA format. We aim at
@@ -59,27 +69,24 @@ We will assume we have a Multiple Sequence Alignment (MSA)in FASTA format. We ai
 
 ## Load ArDCA package 
 
-The following cell loads the package `ArDCA` on `nprocs` workers (here `nprocs=8`) (*Warning*: the first time it takes a while)
+The following cell loads the package `ArDCA` (*Warning*: the first time it takes a while)
 
 * The `mypkgdir` variable should be set to your `path/to/package` dir.
 
-In this notebook we will use the PF00014 protein family available in `data/PF14/` folder of the package/
+We will use the PF00014 protein family available in `data/PF14/` folder of the package/
 
 ```
 mypkgdir = normpath(joinpath(pwd(),".."))
-cd(mypkgdir)
-using Distributed
-nprocs = 8
-addprocs(nprocs) # choose the number of cores that you want to use (here nprocs=8)
-@everywhere using Pkg
-@everywhere Pkg.activate(".")
-@everywhere using ArDCA
+datadir=joinpath(mypkgdir,"data") # put here your path
+using Pkg
+Pkg.activate(mypkgdir)
+using ArDCA
 ```
 ## Learn the autoregressive parameters
 
 As a preliminary step, we learn the field and the coupling parameters $h,J$ from the MSA. To do so we use the `ardca` method that return the parameters (stored in `arnet` in the cell below), and the alignment in numerical format and other algorithms variables (stored in `arvar` in the cell below). The default autoregressive order is set to `:ENTROPIC`. We set the $L_2$ regularization to 0.02 for the $J$ and 0.001 for the $h$.
 
-The keywork arguments for the `ardca` method are (with their default value):
+The keyword arguments for the `ardca` method are (with their default value):
 
 * `epsconv::Real=1.0e-5` (convergenge parameter)
 

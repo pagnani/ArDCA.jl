@@ -63,6 +63,7 @@ function ardca(filename::String;
                 remove_dups::Bool=true,
                 kwds...)
     W, Z, N, M, q = read_fasta(filename, max_gap_fraction, theta, remove_dups)
+    W ./= sum(W)
     ardca(Z, W; kwds...)
 end
 
@@ -76,7 +77,8 @@ function minimize_arnet(alg::ArAlg, var::ArVar{Ti}) where Ti
     @extract var : N q q2
     @extract alg : epsconv maxit method
     vecps = SharedArray{Float64}(N - 1)
-    θ = @distributed vcat for site in 1:N-1
+    θ = SharedArray{Float64}(((N*(N-1))>>1)*q2 + (N-1)*q)
+    Threads.@threads for site in 1:N-1
         x0 = zeros(Float64, site * q2 + q)
         opt = Opt(method, length(x0))
         ftol_abs!(opt, epsconv)
@@ -90,7 +92,8 @@ function minimize_arnet(alg::ArAlg, var::ArVar{Ti}) where Ti
         alg.verbose && @printf("site = %d\tpl = %.4f\ttime = %.4f\t", site, minf, elapstime)
         alg.verbose && println("status = $ret")
         vecps[site] = minf
-        minx
+        offset = div(site*(site-1),2)*q2 + (site-1)*q + 1
+        θ[offset:offset+site * q2 + q - 1] .= minx
     end
     return θ, vecps
 end

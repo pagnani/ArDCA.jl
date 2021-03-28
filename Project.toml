@@ -4,7 +4,7 @@ authors = ["Andrea Pagnani", "Jeanne Trinquier", "Guido Uguzzoni", "Martin Weigt
 version = "0.2.0"
 
 [deps]
-CorrDCA = "71fba74b-94bb-4624-adc3-6f657ac12af8"
+DCAUtils = "e41cd558-3099-4f6e-a65d-5336857e40aa"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 ExtractMacro = "f86d3d12-fd5b-522c-99e9-61577282a1e9"

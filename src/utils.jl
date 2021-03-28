@@ -108,8 +108,9 @@ function sample(arnet::ArNet, msamples::Int)
     q = length(p0)
     N = length(H) # here N is N-1 !!
     backorder = sortperm(idxperm)
-    totH = Vector{Float64}(undef, q)
-    res = @inbounds @distributed hcat for i in 1:msamples
+    res = SharedArray{Int}(N+1,msamples)
+    Threads.@threads for i in 1:msamples
+        totH = Vector{Float64}(undef, q)
         sample_z = Vector{Int}(undef, N + 1)
         sample_z[1] = wsample(1:q, p0)
         for site in 1:N
@@ -124,9 +125,9 @@ function sample(arnet::ArNet, msamples::Int)
             p = softmax(totH)
             sample_z[site + 1] = wsample(1:q, p)
         end
-        sample_z
+        res[:,i] .= sample_z
     end
-    permuterow!(res, backorder)
+    permuterow!(sdata(res), backorder)
 end
 
 """
@@ -144,9 +145,10 @@ function sample_with_weights(arnet::ArNet, msamples)
     q = length(p0)
     N = length(H) # here N is N-1 !!
     backorder = sortperm(idxperm)
-    totH = Vector{Float64}(undef, q)
     W = SharedArray{Float64}(msamples)
-    res = @inbounds @distributed hcat for i in 1:msamples
+    res = SharedArray{Int}(N+1,msamples)
+    Threads.@threads for i in 1:msamples
+        totH = Vector{Float64}(undef, q)
         sample_z = Vector{Int}(undef, N + 1)
         sample_z[1] = wsample(1:q, p0)
         logw = log(p0[sample_z[1]])
@@ -164,10 +166,9 @@ function sample_with_weights(arnet::ArNet, msamples)
             logw += log(p[sample_z[site + 1]])
         end
         W[i] = exp(logw)
-        sample_z
+        res[:,i] .= sample_z
     end
-    permuterow!(res, backorder)
-    return W , res
+    return sdata(W), permuterow!(sdata(res), backorder)
 end
 
 function permuterow!(x::AbstractMatrix, p::Vector)
