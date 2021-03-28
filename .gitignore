@@ -9,3 +9,5 @@ docs/site/
 julia-notebook/*-checkpoints.ipynb
 python-notebook/.ipynb_checkpoints
 .DS_Store
+julia-notebook/.ipynb_checkpoints/tutorial-checkpoint.ipynb
+julia-notebook/.ipynb_checkpoints/arnet-checkpoint.ipynb

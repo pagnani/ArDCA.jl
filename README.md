@@ -39,7 +39,12 @@ For didactic reasons we include locally in the `data` folder, the PF00014 datase
 
 ## Requirements
 
-The minimal Julia version to run this code is 1.5.
+The minimal Julia version to run this code is 1.5. To run it in parallel 
+using Julia multicore infrastructure, start julia with
+
+```
+$> julia -t numcores # ncores can be as large as your available number of threads
+```
 
 ## Documentation
 
