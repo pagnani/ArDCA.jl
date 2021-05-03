@@ -17,7 +17,7 @@ SharedArrays = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
 
 [compat]
 DCAUtils = "1.0"
-Distributions = "0.24"
+Distributions = "0.24, 0.25"
 ExtractMacro = "1.0"
 LoopVectorization = "0.9, 0.11, 0.12"
 NLopt = "0.6"
