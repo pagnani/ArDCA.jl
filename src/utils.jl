@@ -145,7 +145,7 @@ function sample_with_weights(arnet::ArNet, msamples)
     q = length(p0)
     N = length(H) # here N is N-1 !!
     backorder = sortperm(idxperm)
-    W = Vector{Float64}(msamples)
+    W = Vector{Float64}(undef,msamples)
     res = Matrix{Int}(undef,N+1,msamples)
     Threads.@threads for i in 1:msamples
         totH = Vector{Float64}(undef, q)
