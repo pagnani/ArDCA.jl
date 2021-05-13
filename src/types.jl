@@ -5,9 +5,9 @@ struct ArVar{Ti <: Integer}
     q2::Int
     lambdaJ::Float64
     lambdaH::Float64
-    Z::SharedArray{Ti,2}
-    W::SharedArray{Float64,1}
-    IdxZ::SharedArray{Int,2} # partial index computation to speed up energy calculation
+    Z::Array{Ti,2}
+    W::Array{Float64,1}
+    IdxZ::Array{Int,2} # partial index computation to speed up energy calculation
     idxperm::Array{Int,1}
     
     function ArVar(N, M, q, lambdaJ, lambdaH, Z::Array{Ti,2}, W::Array{Float64,1}, permorder::Union{Symbol,Vector{Int}}) where Ti <: Integer
@@ -31,12 +31,6 @@ struct ArVar{Ti <: Integer}
             error("permorder can only be a Symbol or a Vector")
         end
         permuterow!(Z,idxperm)
-        
-        sZ = SharedArray{Ti}(size(Z))
-        sZ[:] = Z
-        sW = SharedArray{Float64}(size(W))
-        sW[:] = W
-        
         IdxZ = Array{Int,2}(undef, N, M)
         q2 = q * q
         for i in 1:M
@@ -44,9 +38,7 @@ struct ArVar{Ti <: Integer}
                 IdxZ[j,i] = (j - 1) * q2 + q * (Z[j,i] - 1)
             end
         end
-        sIdxZ = SharedArray{Int}(size(IdxZ))
-        sIdxZ[:] = IdxZ
-        new{Ti}(N, M, q, q^2, lambdaJ, lambdaH, sZ, sW, sIdxZ,idxperm)
+        new{Ti}(N, M, q, q^2, lambdaJ, lambdaH, Z, W, IdxZ,idxperm)
     end
 end
 
@@ -75,7 +67,7 @@ function Base.show(io::IO, arnet::ArNet)
     print(io,"ArNet [N=$N q=$q]")
 end
 
-function (A::ArNet)(x::AbstractVector{T}) where T <: Integer 
+function (A::ArNet)(x::Vector{T}) where T <: Integer 
     @extract A:J H p0 idxperm
     backorder = sortperm(idxperm)
     N = length(x)
@@ -85,15 +77,14 @@ function (A::ArNet)(x::AbstractVector{T}) where T <: Integer
     permuterow!(_outputarnet(x, J, H, p0, N, q),backorder)
 end
 
-function (A::ArNet)(x::AbstractMatrix{T}) where T <: Integer 
+function (A::ArNet)(x::Matrix{T}) where T <: Integer 
     @extract A : J H p0 idxperm
-    dx = sdata(x)
     backorder = sortperm(idxperm)
     N, M = size(dx)
     length(H) == N - 1 || throw(DimensionMismatch("incompatible size between input and fields"))
     q = length(p0)
     output = @distributed hcat for i in 1:M
-        vx = @view dx[:,i]        
+        vx = @view x[:,i]        
         _outputarnet(vx, J, H, p0, N, q)
     end
     permuterow!(output,backorder)
@@ -116,8 +107,7 @@ end
 
 let DtotH = Dict{Int,Vector{Float64}}()
     global _outputarnet!
-    function _outputarnet!(dest, xs, J, H, p0, N, q)
-        x = sdata(xs)
+    function _outputarnet!(dest, x, J, H, p0, N, q)
         dest[1] = p0[x[1]]
         totH = Base.get!(DtotH,q,Vector{Float64}(undef,q))
         #fill!(totH,0.0)
