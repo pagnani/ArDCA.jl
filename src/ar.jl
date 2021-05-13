@@ -76,8 +76,8 @@ end
 function minimize_arnet(alg::ArAlg, var::ArVar{Ti}) where Ti
     @extract var : N q q2
     @extract alg : epsconv maxit method
-    vecps = SharedArray{Float64}(N - 1)
-    θ = SharedArray{Float64}(((N*(N-1))>>1)*q2 + (N-1)*q)
+    vecps = Vector{Float64}(undef,N - 1)
+    θ = Vector{Float64}(undef, ((N*(N-1))>>1)*q2 + (N-1)*q)
     Threads.@threads for site in 1:N-1
         x0 = zeros(Float64, site * q2 + q)
         opt = Opt(method, length(x0))
@@ -104,11 +104,8 @@ function optimfunwrapper(x::Vector, g::Vector, site, var)
 end
 
 function pslikeandgrad!(x::Vector{Float64}, grad::Vector{Float64}, site::Int, arvar::ArVar)
-    @extract arvar : N M q q2 lambdaJ lambdaH
+    @extract arvar : N M q q2 lambdaJ lambdaH Z W IdxZ
     LL = length(x)
-    Z = sdata(arvar.Z)
-    W = sdata(arvar.W)
-    IdxZ = sdata(arvar.IdxZ)
     for i = 1:LL - q
         grad[i] = 2.0 * lambdaJ  * x[i]
     end

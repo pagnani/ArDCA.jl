@@ -1,7 +1,6 @@
 module ArDCA
 
-using Random: randperm
-using SharedArrays: SharedArray,sdata 
+using Random: randperm 
 using Distributed: @distributed   
 using Printf: @printf 
 using LinearAlgebra: rmul!, norm
