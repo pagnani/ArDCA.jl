@@ -98,28 +98,6 @@ function _outputarnet( xs, J, H, p0, N, q)
     _outputarnet!(dest, xs, J, H, p0, N, q)
 end
 
-let DtotH = Dict{Int,Vector{Float64}}()
-    global _outputarnet_orig!
-    function _outputarnet_orig!(dest, x, J, H, p0, N, q)
-        dest[1] = p0[x[1]]
-        totH = Base.get!(DtotH,q,Vector{Float64}(undef,q))
-        #fill!(totH,0.0)
-        @inbounds for site in 1:N-1
-            Js = J[site]
-            h = H[site]
-            copy!(totH,h)
-            @avx for i in 1:site
-                for a in 1:q
-                    totH[a] += Js[a,x[i],i]
-                end
-            end
-            softmax!(totH)
-            dest[site+1]=totH[x[site+1]]
-        end
-        dest
-    end
-end
-
 let DtotH = Dict{Tuple{Int,Int},Vector{Float64}}()
     global _outputarnet!
     function _outputarnet!(dest, x, J, H, p0, N, q)
@@ -141,6 +119,3 @@ let DtotH = Dict{Tuple{Int,Int},Vector{Float64}}()
         dest
     end
 end
-
-
-
