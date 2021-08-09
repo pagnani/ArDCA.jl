@@ -1,3 +1,4 @@
+
 function epistatic_score(arnet::ArNet, arvar::ArVar, seqid::Int; pc::Float64=0.1,min_separation::Int=1)
     @extract arnet : H J p0 idxperm
     @extract arvar : Z M N q 
@@ -8,36 +9,34 @@ function epistatic_score(arnet::ArNet, arvar::ArVar, seqid::Int; pc::Float64=0.1
     Dab = zeros(q,q,N,N)
 
     xori = Z[:,seqid]
-    xmut = copy(xori)
-    
-    arlike = zeros(N)
+    xmut = [copy(xori) for _ in 1:Threads.nthreads()] 
+    arlike = [zeros(N) for _ in 1:Threads.nthreads()]
     ppc = (1-pc) * p0 + pc * ones(q)/q
     #_outputarnet!(arlike,xmut, J, H, ppc, N, q)
     # E0 =  sum(log.(arlike))
     # E0=0.0
     @inbounds for i in 1:N
-        for a in 1:q
-            xmut[i] = a
-            _outputarnet!(arlike,xmut, J, H, ppc, N, q)
-            Da[a,i] = -sum(log.(arlike))
+        Threads.@threads for a in 1:q
+            xmut[Threads.threadid()][i] = a
+            _outputarnet!(arlike[Threads.threadid()],xmut[Threads.threadid()], J, H, ppc, N, q)
+            Da[a,i] = -sum(log.(arlike[Threads.threadid()]))
+            xmut[Threads.threadid()][i] = xori[i]
         end
-        xmut[i] = xori[i] #reset xmut to the original velue 
     end  
-    
     @inbounds for i in 1:N-1
-        for a in 1:q
-            xmut[i] = a
+        Threads.@threads for a in 1:q
+            xmut[Threads.threadid()][i] = a
             for j in i+1:N
-                for b in 1:q
-                    xmut[j] = b
-                    _outputarnet!(arlike,xmut,J,H,ppc,N,q)        
-                    Dab[b,a,j,i] = -sum(log.(arlike))
-                    #Dab[a,b,i,j] = Dab[b,a,j,i]
+                 for b in 1:q
+                    xmut[Threads.threadid()][i] = a
+                    xmut[Threads.threadid()][j] = b
+                    _outputarnet!(arlike[Threads.threadid()],xmut[Threads.threadid()],J,H,ppc,N,q)        
+                    Dab[b,a,j,i] = -sum(log.(arlike[Threads.threadid()]))
+                    xmut[Threads.threadid()][i] = xori[i]
+                    xmut[Threads.threadid()][j] = xori[j]
                 end
-                xmut[j] = xori[j]
             end
         end
-        xmut[i] = xori[i]
     end
     
     Jret = zeros(q,q,N,N)

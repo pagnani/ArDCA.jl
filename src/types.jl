@@ -98,11 +98,11 @@ function _outputarnet( xs, J, H, p0, N, q)
     _outputarnet!(dest, xs, J, H, p0, N, q)
 end
 
-let DtotH = Dict{Int,Vector{Float64}}()
+let DtotH = Dict{Tuple{Int,Int},Vector{Float64}}()
     global _outputarnet!
     function _outputarnet!(dest, x, J, H, p0, N, q)
         dest[1] = p0[x[1]]
-        totH = Base.get!(DtotH,q,Vector{Float64}(undef,q))
+        totH = Base.get!(DtotH,(q,Threads.threadid()),Vector{Float64}(undef,q))
         #fill!(totH,0.0)
         @inbounds for site in 1:N-1
             Js = J[site]
@@ -119,7 +119,3 @@ let DtotH = Dict{Int,Vector{Float64}}()
         dest
     end
 end
-
-
-
-
