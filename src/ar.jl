@@ -88,7 +88,6 @@ function minimize_arnet(alg::ArAlg, var::ArVar{Ti}) where Ti
         maxeval!( opt, maxit)
         min_objective!(opt, (x, g) -> optimfunwrapper(x, g, site, var))
         elapstime = @elapsed  (minf, minx, ret) = optimize(opt, x0)
-        l2n = l2norm_asym(minx,var)
         alg.verbose && @printf("site = %d\tpl = %.4f\ttime = %.4f\t", site, minf, elapstime)
         alg.verbose && println("status = $ret")
         vecps[site] = minf
