@@ -1,7 +1,7 @@
 name = "ArDCA"
 uuid = "fc7e833f-a3b9-439d-ae82-c6ad11a3e54b"
 authors = ["Andrea Pagnani", "Jeanne Trinquier", "Guido Uguzzoni", "Martin Weigt", "Francesco Zamponi"]
-version = "0.4.1"
+version = "0.4.2"
 
 [deps]
 DCAUtils = "e41cd558-3099-4f6e-a65d-5336857e40aa"
