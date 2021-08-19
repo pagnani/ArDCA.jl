@@ -18,10 +18,10 @@ The code is written in [Julia](https://www.julialang.org/).
 
 ## Install
 
-To install the package,  from the repl enter
+It is a registered package: to install enter `]` in the repl and
 
 ```
-julia> using Pkg; Pkg.add("https://github.com/pagnani/ArDCA"); 
+pkg> add ArDCA 
 ```
 ## Notebooks
 
@@ -49,6 +49,7 @@ $> julia -t numcores # ncores can be as large as your available number of thread
 ## Documentation
 
 [Stable version](https://pagnani.github.io/ArDCA/stable)
+
 [Development version](https://pagnani.github.io/ArDCA/dev)
 
 ## License
