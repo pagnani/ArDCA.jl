@@ -88,7 +88,7 @@ As a preliminary step, we learn the field and the coupling parameters $h,J$ from
 
 The keyword arguments for the `ardca` method are (with their default value):
 
-* `epsconv::Real=1.0e-5` (convergenge parameter)
+* `epsconv::Real=1.0e-5` (convergence parameter)
 
 * `maxit::Int=1000` (maximum number of iteration - don't change)
 
