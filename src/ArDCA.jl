@@ -9,6 +9,7 @@ using NLopt: Opt,ftol_abs!,xtol_rel!,xtol_abs!,ftol_rel!,maxeval!,min_objective!
 using Distributions: wsample
 using LoopVectorization: @avx 
 using DCAUtils: read_fasta_alignment,remove_duplicate_sequences,compute_weights
+using DCAUtils.ReadFastaAlignment: letter2num
 
 export ardca,ArVar,ArAlg,ArNet,sample,sample_with_weights,epistatic_score,dms_single_site
 
