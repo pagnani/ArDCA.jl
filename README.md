@@ -18,7 +18,7 @@ The code is written in [Julia](https://www.julialang.org/).
 
 ## Install
 
-It is a registered package: to install enter `]` in the repl and
+This is a registered package: to install enter `]` in the repl and
 
 ```
 pkg> add ArDCA 
