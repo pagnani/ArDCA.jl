@@ -171,6 +171,49 @@ function sample_with_weights(arnet::ArNet, msamples)
     return W, permuterow!(res, backorder)
 end
 
+function sample_substring(x::String, arnet::ArNet, msamples)
+    @extract arnet:H J p0 idxperm
+    x0 = letter2num.(collect(x))
+    l0 = length(x0)
+    idx0 = idxperm[1:l0]
+    q = length(p0)
+    N = length(H) # here N is N-1 !!
+    backorder = sortperm(idxperm)
+    
+    W = Vector{Float64}(undef, msamples)
+    res = Matrix{Int}(undef, N + 1, msamples)
+    Threads.@threads for i in 1:msamples
+        totH = Vector{Float64}(undef, q)
+        sample_z = -ones(Int, N + 1)
+        for k in 1:l0
+            sample_z[backorder[k]] = x0[k]
+        end
+    
+        if sample_z[1] == -1
+            sample_z[1] = wsample(1:q,p0)
+        end
+        logw = log(p0[sample_z[1]])
+        for site in 1:N
+            Js = J[site]
+            h = H[site]
+            copy!(totH, h)
+            @avx for i in 1:site
+                for a in 1:q
+                    totH[a] += Js[a, sample_z[i], i]
+                end
+            end
+            p = softmax(totH)
+            if sample_z[site+1] == -1 
+                sample_z[site+1] = wsample(1:q, p)
+            end
+            logw += log(p[sample_z[site+1]])
+        end
+        W[i] = exp(logw)
+        res[:, i] .= sample_z
+    end
+    return W, permuterow!(res, backorder)
+end
+
 function permuterow!(x::AbstractMatrix, p::Vector)
     isperm(p) || error("not a permutation")
     for j in 1:size(x, 2)
