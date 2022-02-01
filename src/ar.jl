@@ -72,7 +72,7 @@ function ardca(filename::String;
                 max_gap_fraction::Real=0.9,
                 remove_dups::Bool=true,
                 kwds...)
-    W, Z, N, M, q = read_fasta(filename, max_gap_fraction, theta, remove_dups)
+    W, Z, _,_,_ = read_fasta(filename, max_gap_fraction, theta, remove_dups)
     W ./= sum(W)
     ardca(Z, W; kwds...)
 end
