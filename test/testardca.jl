@@ -46,30 +46,32 @@ function generateWZJh(N, q)
     return W, Z, J, h
 end
 
-function testDCA(N,q;
-                 verbose::Bool=false,
-                 epsconv::Real=1e-50,
-                 lambdaJ::Real=0.0,
-                 lambdaH::Real=0.0,
-                 maxit::Integer=10000,
-                 method::Symbol=:LD_LBFGS,
-                 permorder::Union{Symbol,Vector{Int}}=:NATURAL,
-                 dBthreshold::Real=-40)
+function testDCA(N, q;
+    verbose::Bool = false,
+    epsconv::Real = 1e-50,
+    lambdaJ::Real = 0.0,
+    lambdaH::Real = 0.0,
+    maxit::Integer = 10000,
+    method::Symbol = :LD_LBFGS,
+    permorder::Union{Symbol,Vector{Int}} = :NATURAL,
+    dBthreshold::Real = -40)
 
     W, Z, J, h = generateWZJh(N, q)
-    arnet, arvar = ardca(Z,W,
-                    lambdaJ=lambdaJ,
-                    lambdaH=lambdaH,
-                    epsconv=epsconv,
-                    verbose=verbose,
-                    maxit=maxit,
-                    method=method,
-                    permorder=permorder)
+    arnet, arvar = ardca(Z, W,
+        lambdaJ = lambdaJ,
+        lambdaH = lambdaH,
+        epsconv = epsconv,
+        verbose = verbose,
+        maxit = maxit,
+        method = method,
+        permorder = permorder)
 
-    
-    dBval = 10 * log10(sum(abs2, (sum(log.(arnet(arvar)), dims=1) |> vec .|> exp) - W) / length(W))
+
+    dBval = 10 * log10(sum(abs2, (sum(log.(arnet(arvar)), dims = 1) |> vec .|> exp) - W) / length(W))
     println("testing N=$N\tq=$q\tpermorder=$permorder\tΔ=$dBval [dB]")
     @test dBval < dBthreshold
+    @test arnet(Z[:, 1]) == arnet(Z[:, 1:2])[:, 1]
+
 end
 for q in 2:4
     for N in 2:5

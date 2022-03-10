@@ -77,21 +77,22 @@ function (A::ArNet)(x::Vector{T}) where T <: Integer
     permuterow!(_outputarnet(x, J, H, p0, N, q),backorder)
 end
 
-function (A::ArNet)(x::Matrix{T}) where T <: Integer 
-    @extract A : J H p0 idxperm
+function (A::ArNet)(x::Matrix{T}) where {T<:Integer}
+    @extract A:J H p0 idxperm
     backorder = sortperm(idxperm)
     N, M = size(x)
     length(H) == N - 1 || throw(DimensionMismatch("incompatible size between input and fields"))
     q = length(p0)
-    output = Array{eltype(p0),2}(undef,N,M)
+    output = Array{eltype(p0),2}(undef, N, M)
+    permuterow!(x, idxperm)
     #Threads.@threads
-    for i in 1:M     
-        output[:,i] .= _outputarnet(view(x,:,i), J, H, p0, N, q)
+    for i in 1:M
+        output[:, i] .= _outputarnet(view(x, :, i), J, H, p0, N, q)
     end
-    permuterow!(output,backorder)
+    permuterow!(output, backorder)
 end
 
-(A::ArNet)(arvar::ArVar) = A(arvar.Z)
+(A::ArNet)(arvar::ArVar) = A(arvar.Z[A.idxperm |> sortperm ,:])
 
 function _outputarnet( xs, J, H, p0, N, q)
     dest = Vector{Float64}(undef,N)
