@@ -48,9 +48,9 @@ $> julia -t numcores # ncores can be as large as your available number of thread
 
 ## Documentation
 
-[Stable version](https://pagnani.github.io/ArDCA/stable)
+[Stable version](https://pagnani.github.io/ArDCA.jl/stable)
 
-[Development version](https://pagnani.github.io/ArDCA/dev)
+[Development version](https://pagnani.github.io/ArDCA.jl/dev)
 
 ## License
 
