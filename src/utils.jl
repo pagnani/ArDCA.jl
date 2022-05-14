@@ -172,7 +172,7 @@ function sample_with_weights(arnet::ArNet, msamples)
 end
 
 """
-    sample_subsequence(x::String, arnet::ArNet, msamples) ->
+    sample_subsequence(x::String, arnet::ArNet, msamples)
 Return a generated alignment in the form of a `N × msamples`  matrix of type
 `::Matrix{Int}` and the relative probabilities under the model. The alignment is 
 forced to start with with a sequence `x` (in amino acid single letter alphabet) 
@@ -190,7 +190,7 @@ function sample_subsequence(x::String, arnet::ArNet, msamples)
 end
 
 """
-    sample_subsequence(x::Vector{T}, arnet::ArNet, msamples) ->
+    sample_subsequence(x::Vector{T}, arnet::ArNet, msamples)
 Return a generated alignment in the form of a `N × msamples`  matrix of type
 `::Matrix{Int}` and the relative probabilities under the model. The alignment is 
 forced to start with with a sequence `x` (in integer number coding) 
@@ -261,13 +261,13 @@ function permuterow!(x::AbstractVector, p::Vector)
 end
 
 """
-    loglikelihood(x0::Vector{T}, arnet::ArNet) where {T<:Integer}) -> 
+    loglikelihood(x0::Vector{T}, arnet::ArNet) where {T<:Integer})
 Return the loglikelihood of sequence `x0` encoded in integer values in `1:q` under the model `arnet``. 
 """
 (loglikelihood(x0::Vector{T}, arnet::ArNet) where {T<:Integer}) = sum(log, arnet(x0))
 
 """
-    loglikelihood(x0::String, arnet::ArNet) where {T<:Integer}) -> 
+    loglikelihood(x0::String, arnet::ArNet) where {T<:Integer})
 Return the loglikelihood of the `String` `x0` under the model `arnet`. 
 """
 function loglikelihood(s0::String, arnet::ArNet)
@@ -276,7 +276,7 @@ function loglikelihood(s0::String, arnet::ArNet)
 end
 
 """
-    loglikelihood(x0::Matrix{T}, arnet::ArNet) where {T<:Integer}) -> 
+    loglikelihood(x0::Matrix{T}, arnet::ArNet) where {T<:Integer}) 
 Return the vector of loglikelihoods computed from `Matrix` `x0` under the model
 `arnet`. `size(x0) == N,M` where `N` is the sequences length, and `M` the number
 of sequences. The returned vector has `M` elements.
