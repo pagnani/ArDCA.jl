@@ -74,7 +74,9 @@ function (A::ArNet)(x::Vector{T}) where T <: Integer
     length(H) == N - 1 || throw(DimensionMismatch("incompatible size between input and fields"))
     q = length(p0)
     permuterow!(x,idxperm)
-    permuterow!(_outputarnet(x, J, H, p0, N, q),backorder)
+    res = permuterow!(_outputarnet(x, J, H, p0, N, q),backorder)
+    permuterow!(x,backorder)
+    return res
 end
 
 function (A::ArNet)(x::Matrix{T}) where {T<:Integer}
@@ -89,7 +91,9 @@ function (A::ArNet)(x::Matrix{T}) where {T<:Integer}
     for i in 1:M
         output[:, i] .= _outputarnet(view(x, :, i), J, H, p0, N, q)
     end
-    permuterow!(output, backorder)
+    res = permuterow!(output, backorder)
+    permuterow!(x,backorder)
+    return res
 end
 
 (A::ArNet)(arvar::ArVar) = A(arvar.Z[A.idxperm |> sortperm ,:])

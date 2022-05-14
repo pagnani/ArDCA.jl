@@ -70,8 +70,10 @@ function testDCA(N, q;
     dBval = 10 * log10(sum(abs2, (sum(log.(arnet(arvar)), dims = 1) |> vec .|> exp) - W) / length(W))
     println("testing N=$N\tq=$q\tpermorder=$permorder\tΔ=$dBval [dB]")
     @test dBval < dBthreshold
+    Zcopy = copy(Z)
     @test arnet(Z[:, 1]) == arnet(Z[:, 1:2])[:, 1]
-
+    val1 = arnet(Z)
+    @test Zcopy == Z
 end
 for q in 2:4
     for N in 2:5

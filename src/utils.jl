@@ -206,7 +206,7 @@ function sample_subsequence(x0::Vector{T}, arnet::ArNet, msamples) where {T<:Int
     @extract arnet:H J p0 idxperm
     N = length(idxperm)
     length(x0) < N || error("Subsequence too long for the model")
-    all(x->1≤x≤21,x0) || error("Subsequence numeric code should be in 1..21 ")
+    all(x -> 1 ≤ x ≤ 21, x0) || error("Subsequence numeric code should be in 1..21 ")
     l0 = length(x0)
     q = length(p0)
     N = length(H) # here N is N-1 !!
@@ -260,8 +260,32 @@ function permuterow!(x::AbstractVector, p::Vector)
     Base.permute!(x, p)
 end
 
+"""
+    loglikelihood(x0::Vector{T}, arnet::ArNet) where {T<:Integer}) -> 
+Return the loglikelihood of sequence `x0` encoded in integer values in `1:q` under the model `arnet``. 
+"""
+(loglikelihood(x0::Vector{T}, arnet::ArNet) where {T<:Integer}) = sum(log, arnet(x0))
+
+"""
+    loglikelihood(x0::String, arnet::ArNet) where {T<:Integer}) -> 
+Return the loglikelihood of the `String` `x0` under the model `arnet`. 
+"""
+function loglikelihood(s0::String, arnet::ArNet)
+    x0 = letter2num.(collect(s0))
+    sum(log, arnet(x0))
+end
+
+"""
+    loglikelihood(x0::Matrix{T}, arnet::ArNet) where {T<:Integer}) -> 
+Return the vector of loglikelihoods computed from `Matrix` `x0` under the model
+`arnet`. `size(x0) == N,M` where `N` is the sequences length, and `M` the number
+of sequences. The returned vector has `M` elements.
+"""
+(loglikelihood(x0::Matrix{T}, arnet::ArNet) where {T<:Integer}) = sum(log, arnet(x0), dims=1)[:]
+
+
 # warning the gauge of H[:,1] is to be determined !!
-function tensorize(arnet::ArNet; tiny::Float64 = 1e-16)
+function tensorize(arnet::ArNet; tiny::Float64=1e-16)
     @extract arnet:J H idxperm p0
     N = length(idxperm)
     q = length(H[1])
@@ -293,7 +317,7 @@ amino-acid) for which the score has no sense and is set by convention to `+Inf`.
 A negative value indicate a beneficial mutation, a value 0 indicate
 the wild-type amino-acid.
 """
-function dms_single_site(arnet::ArNet, arvar::ArVar, seqid::Int; pc::Float64 = 0.1)
+function dms_single_site(arnet::ArNet, arvar::ArVar, seqid::Int; pc::Float64=0.1)
     @extract arnet:H J p0 idxperm
     @extract arvar:Z M N q
 
