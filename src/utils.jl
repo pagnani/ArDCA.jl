@@ -260,6 +260,9 @@ function permuterow!(x::AbstractVector, p::Vector)
     Base.permute!(x, p)
 end
 
+log0(x::Number) = x > 0 ? log(x) : zero(x)
+
+
 """
     loglikelihood(x0::Vector{T}, arnet::ArNet) where {T<:Integer})
 Return the loglikelihood of sequence `x0` encoded in integer values in `1:q` under the model `arnet``. 
@@ -281,8 +284,15 @@ Return the vector of loglikelihoods computed from `Matrix` `x0` under the model
 `arnet`. `size(x0) == N,M` where `N` is the sequences length, and `M` the number
 of sequences. The returned vector has `M` elements.
 """
-(loglikelihood(x0::Matrix{T}, arnet::ArNet) where {T<:Integer}) = sum(log, arnet(x0), dims=1)[:]
+(loglikelihood(x0::Matrix{T}, arnet::ArNet) where {T<:Integer}) = sum(log0, arnet(x0), dims=1)[:]
 
+"""
+    loglikelihood(arnet::ArNet, arvar::ArVar)
+Return the vector of loglikelihoods computed from `arvar.Z` under the model
+`arnet`. `size(arvar.Z) == N,M` where `N` is the sequences length, and `M` the number
+of sequences. The returned vector has `M` elements reweighted by `arvar.W`
+"""
+loglikelihood(arnet::ArNet,arvar::ArVar) = sum(log0,arnet(arvar),dims=1)[:] .*arvar.W
 
 # warning the gauge of H[:,1] is to be determined !!
 function tensorize(arnet::ArNet; tiny::Float64=1e-16)
