@@ -143,7 +143,7 @@ function pslikeandgrad!(x::Vector{Float64}, grad::Vector{Float64}, site::Int, ar
         end
         grad[ sq2 + zsm ] -= W[m]
     end
-    pseudolike #+= l2norm_asym(x, arvar)
+    pseudolike += l2norm_asym(x, arvar)
 end
 
 function fillvecene!(vecene::Vector{Float64}, x::Vector{Float64}, site::Int, IdxSeq::AbstractArray{Int,1}, q::Int, N::Int)

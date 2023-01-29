@@ -296,25 +296,38 @@ loglikelihood(arnet::ArNet,arvar::ArVar) = sum(log0,arnet(arvar),dims=1)[:] .*ar
 
 function mysiteloglike(arnet,arvar,site)
     @extract arnet:H J p0 idxperm
-    @extract arvar: Z W M
+    @extract arvar: Z W M lambdaJ lambdaH
     q = length(p0)
     N = length(H) # here N is N-1 !!
+    (1 ≤ site ≤ N+1) || throw(DomainError("site = $site should be in [1,$(N+1)]"))
     backorder = sortperm(idxperm)
-    Js = J[site-1]
-    h = H[site-1]
-    ll = zeros(eltype(J[site-1]),Threads.nthreads())
-    Threads.@threads for μ in 1:M
-        totH = Vector{Float64}(undef, q)
-        copy!(totH, h)
-        @avx for i in 1:site-1
-            for a in 1:q
-                totH[a] += Js[a, Z[i,μ], i]
-            end
+    
+    ll = zeros(eltype(p0),Threads.nthreads())
+    if site == 1
+        Threads.@threads for μ in 1:M
+            _p0 = softmax(p0)
+            ll[Threads.threadid()] += log(_p0[Z[site,μ]])*W[μ]
         end
-        softmax!(totH)
-        ll[Threads.threadid()] += log(totH[Z[site,μ]])*W[μ] 
+    else
+        Js = J[site-1]
+        h = H[site-1]
+        Threads.@threads for μ in 1:M
+            totH = Vector{Float64}(undef, q)
+            copy!(totH, h)
+            @avx for i in 1:site-1
+                for a in 1:q
+                    totH[a] += Js[a, Z[i,μ], i]
+                end
+            end
+            softmax!(totH)
+            ll[Threads.threadid()] += log(totH[Z[site,μ]])*W[μ] 
+        end
     end
-    return sum(ll)
+    if site == 1
+        return -sum(ll),zero(eltype(ll))
+    else    
+        return -sum(ll),lambdaJ * sum(abs2,Js) + lambdaH * sum(abs2,h)
+    end
 end
 
 
