@@ -98,7 +98,7 @@ function minimize_arnet(alg::ArAlg, var::ArVar{Ti}) where Ti
         maxeval!( opt, maxit)
         min_objective!(opt, (x, g) -> optimfunwrapper(x, g, site, var))
         elapstime = @elapsed  (minf, minx, ret) = optimize(opt, x0)
-        alg.verbose && @printf("site = %d\tpl = %.4f\ttime = %.4f\t", site, minf, elapstime)
+        alg.verbose && @printf("site = %d\tpl = %.4f\ttime = %.4f\t", site+1, minf, elapstime)
         alg.verbose && println("status = $ret")
         vecps[site] = minf
         offset = div(site*(site-1),2)*q2 + (site-1)*q + 1
@@ -143,7 +143,7 @@ function pslikeandgrad!(x::Vector{Float64}, grad::Vector{Float64}, site::Int, ar
         end
         grad[ sq2 + zsm ] -= W[m]
     end
-    pseudolike += l2norm_asym(x, arvar)
+    pseudolike #+= l2norm_asym(x, arvar)
 end
 
 function fillvecene!(vecene::Vector{Float64}, x::Vector{Float64}, site::Int, IdxSeq::AbstractArray{Int,1}, q::Int, N::Int)

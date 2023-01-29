@@ -248,7 +248,7 @@ end
 
 function permuterow!(x::AbstractMatrix, p::Vector)
     isperm(p) || error("not a permutation")
-    for j in 1:size(x, 2)
+    for j in axes(x, 2)
         vx = @view x[:, j]
         Base.permute!(vx, p)
     end
@@ -293,6 +293,30 @@ Return the vector of loglikelihoods computed from `arvar.Z` under the model
 of sequences. The returned vector has `M` elements reweighted by `arvar.W`
 """
 loglikelihood(arnet::ArNet,arvar::ArVar) = sum(log0,arnet(arvar),dims=1)[:] .*arvar.W
+
+function mysiteloglike(arnet,arvar,site)
+    @extract arnet:H J p0 idxperm
+    @extract arvar: Z W M
+    q = length(p0)
+    N = length(H) # here N is N-1 !!
+    backorder = sortperm(idxperm)
+    Js = J[site-1]
+    h = H[site-1]
+    ll = zeros(eltype(J[site-1]),Threads.nthreads())
+    Threads.@threads for μ in 1:M
+        totH = Vector{Float64}(undef, q)
+        copy!(totH, h)
+        @avx for i in 1:site-1
+            for a in 1:q
+                totH[a] += Js[a, Z[i,μ], i]
+            end
+        end
+        softmax!(totH)
+        ll[Threads.threadid()] += log(totH[Z[site,μ]])*W[μ] 
+    end
+    return sum(ll)
+end
+
 
 # warning the gauge of H[:,1] is to be determined !!
 function tensorize(arnet::ArNet; tiny::Float64=1e-16)
