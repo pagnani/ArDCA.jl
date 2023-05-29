@@ -128,7 +128,7 @@ let DtotH = Dict{Tuple{Int,Int},Vector{Float64}}()
             Js = J[site]
             h = H[site]
             copy!(totH,h)
-            @avx for i in 1:site
+            @turbo for i in 1:site
                 for a in 1:q
                     totH[a] += Js[a,x[i],i]
                 end

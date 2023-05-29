@@ -132,13 +132,13 @@ function pslikeandgrad!(x::Vector{Float64}, grad::Vector{Float64}, site::Int, ar
         expvecenesumnorm .= @. exp(vecene - lnorm)
         pseudolike -= W[m] * (vecene[ zsm ] - lnorm)
         sq2 = site * q2 
-        @avx for i in 1:site
+        @turbo for i in 1:site
             for s in 1:q
                 grad[ izm[i] + s ] += W[m] * expvecenesumnorm[s]                
             end
             grad[ izm[i] + zsm ] -= W[m]
         end
-        @avx for s = 1:q
+        @turbo for s = 1:q
             grad[ sq2 + s ] += W[m] * expvecenesumnorm[s]            
         end
         grad[ sq2 + zsm ] -= W[m]
@@ -151,7 +151,7 @@ function fillvecene!(vecene::Vector{Float64}, x::Vector{Float64}, site::Int, Idx
     sq2 = site * q2 
     @inbounds for l in 1:q
         scra = 0.0
-        @avx for i in 1:site
+        @turbo for i in 1:site
             scra += x[IdxSeq[i] + l]
         end
         scra += x[sq2 + l] # sum H
@@ -169,12 +169,12 @@ function l2norm_asym(vec::Array{Float64,1}, arvar::ArVar)
     @extract arvar : q N lambdaJ lambdaH
     LL = length(vec)
     mysum1 = 0.0
-    @inbounds @avx for i = 1:(LL - q)
+    @inbounds @turbo for i = 1:(LL - q)
         mysum1 += vec[i] * vec[i]
     end
     mysum1 *= lambdaJ
     mysum2 = 0.0
-    @inbounds @avx for i = (LL - q + 1):LL
+    @inbounds @turbo for i = (LL - q + 1):LL
         mysum2 += vec[i] * vec[i]
     end
     mysum2 *= lambdaH

@@ -76,12 +76,12 @@ function softmax!(r::Vector{Float64}, x::Vector{Float64})
     n = length(x)
     u = maximum(x)
     s = 0.0
-    @inbounds @avx for i = 1:n
+    @inbounds @turbo for i = 1:n
         r[i] = exp(x[i] - u)
         s += r[i]
     end
     invs = inv(s)
-    @inbounds @avx for i = 1:n
+    @inbounds @turbo for i = 1:n
         r[i] *= invs
     end
     r
@@ -117,7 +117,7 @@ function sample(arnet::ArNet, msamples::Int)
             Js = J[site]
             h = H[site]
             copy!(totH, h)
-            @avx for i in 1:site
+            @turbo for i in 1:site
                 for a in 1:q
                     totH[a] += Js[a, sample_z[i], i]
                 end
@@ -156,7 +156,7 @@ function sample_with_weights(arnet::ArNet, msamples)
             Js = J[site]
             h = H[site]
             copy!(totH, h)
-            @avx for i in 1:site
+            @turbo for i in 1:site
                 for a in 1:q
                     totH[a] += Js[a, sample_z[i], i]
                 end
@@ -229,7 +229,7 @@ function sample_subsequence(x0::Vector{T}, arnet::ArNet, msamples) where {T<:Int
             Js = J[site]
             h = H[site]
             copy!(totH, h)
-            @avx for i in 1:site
+            @turbo for i in 1:site
                 for a in 1:q
                     totH[a] += Js[a, sample_z[i], i]
                 end
