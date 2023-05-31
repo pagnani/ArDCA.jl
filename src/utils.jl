@@ -248,7 +248,7 @@ end
 
 function permuterow!(x::AbstractMatrix, p::Vector)
     isperm(p) || error("not a permutation")
-    for j in 1:size(x, 2)
+    for j in axes(x, 2)
         vx = @view x[:, j]
         Base.permute!(vx, p)
     end
@@ -278,6 +278,33 @@ function loglikelihood(s0::String, arnet::ArNet)
     sum(log, arnet(x0))
 end
 
+#this is just for testing reasons
+function myloglikelihood(x0::Vector{T}, arnet::ArNet) where {T<:Integer}
+    @extract arnet:J H idxperm p0
+    q = length(p0)
+    all(x -> x ∈ 1:q, x0) || error("element of vector not ∈ 1:$q")
+    N = length(H) # here N is N-1 !!
+    length(x0) == N + 1 || throw(DomainError("site = $i should be in [1,$(N+1)]"))
+    backorder=sortperm(idxperm)
+    permute!(x0,idxperm)
+    ll = log(p0[x0[1]])
+    totH = similar(p0)
+    for site in 1:N
+        Js = J[site]
+        h = H[site]
+        copy!(totH,h)
+        @turbo for i in 1:site
+            for a in 1:q
+                totH[a] += Js[a, x0[i], i]
+            end
+        end
+        softmax!(totH)
+        ll += log(totH[x0[site+1]]) 
+    end
+    permute!(x0,backorder)
+    return ll
+end
+
 """
     loglikelihood(x0::Matrix{T}, arnet::ArNet) where {T<:Integer}) 
 Return the vector of loglikelihoods computed from `Matrix` `x0` under the model
@@ -292,7 +319,49 @@ Return the vector of loglikelihoods computed from `arvar.Z` under the model
 `arnet`. `size(arvar.Z) == N,M` where `N` is the sequences length, and `M` the number
 of sequences. The returned vector has `M` elements reweighted by `arvar.W`
 """
-loglikelihood(arnet::ArNet,arvar::ArVar) = sum(log0,arnet(arvar),dims=1)[:] .*arvar.W
+loglikelihood(arnet::ArNet, arvar::ArVar) = sum(siteloglikelihood(i,arnet,arvar) for i in 1:arvar.N)
+
+"""
+    siteloglikelihood(i::Int,arnet::ArNet, arvar::ArVar)
+Return the loglikelihood relative to site i computed from `arvar.Z` under the model
+`arnet`. 
+"""
+function siteloglikelihood(i::Int,arnet::ArNet,arvar::ArVar)
+    @extract arnet:H J p0 idxperm
+    @extract arvar: Z W M lambdaJ lambdaH
+    q = length(p0)
+    N = length(H) # here N is N-1 !!
+    (1 ≤ i ≤ N+1) || throw(DomainError("site = $i should be in [1,$(N+1)]"))
+    backorder = sortperm(idxperm)
+    site = backorder[i]  
+    ll = zeros(eltype(p0),Threads.nthreads())
+    if site == 1
+        Threads.@threads :static for μ in 1:M
+            _p0 = softmax(p0)
+            ll[Threads.threadid()] += log(_p0[Z[site,μ]])*W[μ]
+        end
+    else
+        Js = J[site-1]
+        h = H[site-1]
+        Threads.@threads :static for μ in 1:M
+            totH = Vector{Float64}(undef, q)
+            copy!(totH, h)
+            @turbo for i in 1:site-1
+                for a in 1:q
+                    totH[a] += Js[a, Z[i,μ], i]
+                end
+            end
+            softmax!(totH)
+            ll[Threads.threadid()] += log(totH[Z[site,μ]])*W[μ] 
+        end
+    end
+    if site == 1
+        return -sum(ll)+zero(eltype(ll))
+    else    
+        return -sum(ll)+lambdaJ * sum(abs2,Js) + lambdaH * sum(abs2,h)
+    end
+end
+
 
 # warning the gauge of H[:,1] is to be determined !!
 function tensorize(arnet::ArNet; tiny::Float64=1e-16)

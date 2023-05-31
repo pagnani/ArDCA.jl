@@ -84,11 +84,11 @@ end
 (checkpermorder(po::Vector{Ti}) where Ti <: Integer) = isperm(po) || error("permorder is not a permutation")
 
 function minimize_arnet(alg::ArAlg, var::ArVar{Ti}) where Ti
-    @extract var : N q q2
+    @extract var : N q q2 idxperm
     @extract alg : epsconv maxit method
     vecps = Vector{Float64}(undef,N - 1)
     θ = Vector{Float64}(undef, ((N*(N-1))>>1)*q2 + (N-1)*q)
-    Threads.@threads for site in 1:N-1
+    Threads.@threads :static for site in 1:N-1
         x0 = zeros(Float64, site * q2 + q)
         opt = Opt(method, length(x0))
         ftol_abs!(opt, epsconv)
@@ -98,7 +98,7 @@ function minimize_arnet(alg::ArAlg, var::ArVar{Ti}) where Ti
         maxeval!( opt, maxit)
         min_objective!(opt, (x, g) -> optimfunwrapper(x, g, site, var))
         elapstime = @elapsed  (minf, minx, ret) = optimize(opt, x0)
-        alg.verbose && @printf("site = %d\tpl = %.4f\ttime = %.4f\t", site, minf, elapstime)
+        alg.verbose && @printf("site = %d\tpl = %.4f\ttime = %.4f\t", idxperm[site+1], minf, elapstime)
         alg.verbose && println("status = $ret")
         vecps[site] = minf
         offset = div(site*(site-1),2)*q2 + (site-1)*q + 1
@@ -138,7 +138,7 @@ function pslikeandgrad!(x::Vector{Float64}, grad::Vector{Float64}, site::Int, ar
             end
             grad[ izm[i] + zsm ] -= W[m]
         end
-        @turbo for s = 1:q
+        @turbo for s in 1:q
             grad[ sq2 + s ] += W[m] * expvecenesumnorm[s]            
         end
         grad[ sq2 + zsm ] -= W[m]
