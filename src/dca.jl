@@ -16,7 +16,7 @@ function epistatic_score(arnet::ArNet, arvar::ArVar, seqid::Int; pc::Float64=0.1
     # E0 =  sum(log.(arlike))
     # E0=0.0
     @inbounds for i in 1:N
-        Threads.@threads for a in 1:q
+        Threads.@threads :static for a in 1:q
             xmut[Threads.threadid()][i] = a
             _outputarnet!(arlike[Threads.threadid()],xmut[Threads.threadid()], J, H, ppc, N, q)
             Da[a,i] = -sum(log.(arlike[Threads.threadid()]))
@@ -24,7 +24,7 @@ function epistatic_score(arnet::ArNet, arvar::ArVar, seqid::Int; pc::Float64=0.1
         end
     end  
     @inbounds for i in 1:N-1
-        Threads.@threads for a in 1:q
+        Threads.@threads :static for a in 1:q
             xmut[Threads.threadid()][i] = a
             for j in i+1:N
                  for b in 1:q
