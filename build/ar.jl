@@ -23,19 +23,19 @@ Optional arguments:
 julia> arnet, arvar= ardca(Z,W,lambdaJ=0,lambdaH=0,permorder=:REV_ENTROPIC,epsconv=1e-12);
 ```
 """
-function ardca(Z::Array{Ti,2},W::Vector{Float64};
-                fracmax::Real=0.3,
-                remove_dups::Bool=true,
-                min_separation::Int=1,
-                theta=:auto,
-                lambdaJ::Real=0.01,
-                lambdaH::Real=0.01,
-                epsconv::Real=1.0e-5,
-                maxit::Int=1000,
-                verbose::Bool=true,
-                method::Symbol=:LD_LBFGS,
-                permorder::Union{Symbol,Vector{Int}}=:ENTROPIC
-                ) where Ti <: Integer
+function ardca(Z::Array{Ti,2}, W::Vector{Float64};
+    fracmax::Real=0.3,
+    remove_dups::Bool=true,
+    min_separation::Int=1,
+    theta=:auto,
+    lambdaJ::Real=0.01,
+    lambdaH::Real=0.01,
+    epsconv::Real=1.0e-5,
+    maxit::Int=1000,
+    verbose::Bool=true,
+    method::Symbol=:LD_LBFGS,
+    permorder::Union{Symbol,Vector{Int}}=:ENTROPIC
+) where {Ti<:Integer}
 
     checkpermorder(permorder)
     all(x -> x > 0, W) || throw(DomainError("vector W should normalized and with all positive elements"))
@@ -45,9 +45,9 @@ function ardca(Z::Array{Ti,2},W::Vector{Float64};
     q = Int(maximum(Z))
     aralg = ArAlg(method, verbose, epsconv, maxit)
     arvar = ArVar(N, M, q, lambdaJ, lambdaH, Z, W, permorder)
-    θ,psval = minimize_arnet(aralg, arvar)
+    θ, psval = minimize_arnet(aralg, arvar)
     Base.GC.gc() # something wrong with SharedArrays on Mac
-    return ArNet(θ,arvar),arvar
+    return ArNet(θ, arvar), arvar
 end
 """
     ardca(filename::String; kwds...)
@@ -58,10 +58,10 @@ julia> arnet, arvar =  ardca("pf14.fasta", permorder=:ENTROPIC)
 ```
 """
 function ardca(filename::String;
-                theta::Union{Symbol,Real}=:auto,
-                max_gap_fraction::Real=0.9,
-                remove_dups::Bool=true,
-                kwds...)
+    theta::Union{Symbol,Real}=:auto,
+    max_gap_fraction::Real=0.9,
+    remove_dups::Bool=true,
+    kwds...)
     W, Z, N, M, q = read_fasta(filename, max_gap_fraction, theta, remove_dups)
     ardca(Z, W; kwds...)
 end

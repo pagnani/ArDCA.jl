@@ -15,7 +15,7 @@ function computep0(var)
     for i in 1:length(W)
         p0[Z[1,i]] += W[i]
     end
-    p0
+    return p0
 end
 
 function compute_empirical_freqs(Z::AbstractArray{Ti,2}, W::AbstractVector{Float64}, q::Ti) where Ti <: Integer
@@ -26,7 +26,7 @@ function compute_empirical_freqs(Z::AbstractArray{Ti,2}, W::AbstractVector{Float
             f[Z[i,s],i] += W[s]
         end
     end
-    f
+    return f
 end
 
 function entropy(Z::AbstractArray{Ti,2}, W::AbstractVector{Float64}) where Ti <: Integer
@@ -41,7 +41,7 @@ function entropy(Z::AbstractArray{Ti,2}, W::AbstractVector{Float64}) where Ti <:
         end
         S[i] = _s
     end
-    S
+    return S
 end
 
 function unpack_params(θ, arvar::ArVar)
@@ -69,7 +69,7 @@ function unpack_params(θ, arvar::ArVar)
         push!(arrH, _arrH)
     end
     @assert ctr == length(θ)
-    computep0(arvar), arrJ, arrH
+    return computep0(arvar), arrJ, arrH
 end
 
 function softmax!(r::Vector{Float64}, x::Vector{Float64})
@@ -84,7 +84,7 @@ function softmax!(r::Vector{Float64}, x::Vector{Float64})
     @inbounds @avx for i = 1:n
         r[i] *= invs
     end
-    r
+    return r
 end
 
 """
@@ -176,7 +176,7 @@ function permuterow!(x::AbstractMatrix, p::Vector)
         vx = @view x[:,j]
         Base.permute!(vx, p)
     end
-    x
+    return x
 end
 
 function permuterow!(x::AbstractVector, p::Vector)  
@@ -204,7 +204,7 @@ function tensorize(arnet::ArNet; tiny::Float64=1e-16)
             outJ[:,:,sj,si] .= Js[:,:,j]'
         end
     end
-    outJ, outH
+    return outJ, outH
 end
 
 """
