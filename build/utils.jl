@@ -172,7 +172,7 @@ end
 
 function permuterow!(x::AbstractMatrix, p::Vector)
     isperm(p) || error("not a permutation")
-    for j in 1:size(x, 2)
+    for j in 1:axes(x, 2)
         vx = @view x[:,j]
         Base.permute!(vx, p)
     end

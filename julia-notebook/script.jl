@@ -37,7 +37,7 @@ end
 
 function computescore(score,filedist::String; mindist::Int=4, cutoff::Float64=7.0)
     d = readdlm(filedist)
-    dist = Dict((round(Int,d[i,1]),round(Int,d[i,2])) => d[i,4] for i in 1:size(d,1))
+    dist = Dict((round(Int,d[i,1]),round(Int,d[i,2])) => d[i,4] for i in 1:axes(d,1))
     nc2 = length(score)
     #nc2 == size(d,1) || throw(DimensionMismatch("incompatible length $nc2 $(size(d,1))"))
     out = Tuple{Int,Int,Float64,Float64}[]

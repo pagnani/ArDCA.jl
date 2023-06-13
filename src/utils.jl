@@ -12,10 +12,10 @@ end
 function computep0(var)
     @extract var:W Z q
     p0 = zeros(q)
-    for i in 1:length(W)
+    for i in eachindex(W)
         p0[Z[1, i]] += W[i]
     end
-    p0
+    return p0
 end
 
 function compute_empirical_freqs(Z::AbstractArray{Ti,2}, W::AbstractVector{Float64}, q::Ti) where {Ti<:Integer}
@@ -26,7 +26,7 @@ function compute_empirical_freqs(Z::AbstractArray{Ti,2}, W::AbstractVector{Float
             f[Z[i, s], i] += W[s]
         end
     end
-    f
+    return f
 end
 
 function entropy(Z::AbstractArray{Ti,2}, W::AbstractVector{Float64}) where {Ti<:Integer}
@@ -41,7 +41,7 @@ function entropy(Z::AbstractArray{Ti,2}, W::AbstractVector{Float64}) where {Ti<:
         end
         S[i] = _s
     end
-    S
+    return S
 end
 
 function unpack_params(θ, arvar::ArVar)
@@ -69,7 +69,7 @@ function unpack_params(θ, arvar::ArVar)
         push!(arrH, _arrH)
     end
     @assert ctr == length(θ)
-    computep0(arvar), arrJ, arrH
+    return computep0(arvar), arrJ, arrH
 end
 
 function softmax!(r::Vector{Float64}, x::Vector{Float64})
@@ -84,7 +84,7 @@ function softmax!(r::Vector{Float64}, x::Vector{Float64})
     @inbounds @turbo for i = 1:n
         r[i] *= invs
     end
-    r
+    return r
 end
 
 """
@@ -127,7 +127,7 @@ function sample(arnet::ArNet, msamples::Int)
         end
         res[:, i] .= sample_z
     end
-    permuterow!(res, backorder)
+    return permuterow!(res, backorder)
 end
 
 """
@@ -257,7 +257,7 @@ end
 
 function permuterow!(x::AbstractVector, p::Vector)
     isperm(p) || error("not a permutation")
-    Base.permute!(x, p)
+    return Base.permute!(x, p)
 end
 
 log0(x::Number) = x > 0 ? log(x) : zero(x)
@@ -275,7 +275,7 @@ Return the loglikelihood of the `String` `x0` under the model `arnet`.
 """
 function loglikelihood(s0::String, arnet::ArNet)
     x0 = letter2num.(collect(s0))
-    sum(log, arnet(x0))
+    return sum(log, arnet(x0))
 end
 
 #this is just for testing reasons
@@ -383,7 +383,7 @@ function tensorize(arnet::ArNet; tiny::Float64=1e-16)
             outJ[:, :, sj, si] .= Js[:, :, j]'
         end
     end
-    outJ, outH
+   return  outJ, outH
 end
 
 """
