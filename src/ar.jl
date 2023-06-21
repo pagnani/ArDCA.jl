@@ -33,11 +33,12 @@ function ardca(Z::Array{Ti,2},W::Vector{Float64};
     checkpermorder(permorder)
     all(x -> x > 0, W) || throw(DomainError("vector W should normalized and with all positive elements"))
     isapprox(sum(W), 1) || throw(DomainError("sum(W) ≠ 1. Consider normalizing the vector W"))
-    N, M = size(Z)
+    Z_copy = copy(Z)
+    N, M = size(Z_copy)
     M = length(W)
-    q = Int(maximum(Z))
+    q = Int(maximum(Z_copy))
     aralg = ArAlg(method, verbose, epsconv, maxit)
-    arvar = ArVar(N, M, q, lambdaJ, lambdaH, Z, W, permorder)
+    arvar = ArVar(N, M, q, lambdaJ, lambdaH, Z_copy, W, permorder)
     θ,psval = minimize_arnet(aralg, arvar)
     Base.GC.gc() # something wrong with SharedArrays on Mac
     ArNet(θ,arvar),arvar
