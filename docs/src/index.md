@@ -3,7 +3,7 @@ CurrentModule = ArDCA
 ```
 
 # ArDCA
-* Autoreressive model learning for protein inference.
+* Autoregressive model learning for protein inference.
 
 ## Package Features
 
