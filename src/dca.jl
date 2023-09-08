@@ -12,9 +12,6 @@ function epistatic_score(arnet::ArNet, arvar::ArVar, seqid::Int; pc::Float64=0.1
     xmut = [copy(xori) for _ in 1:Threads.nthreads()] 
     arlike = [zeros(N) for _ in 1:Threads.nthreads()]
     ppc = (1-pc) * p0 + pc * ones(q)/q
-    #_outputarnet!(arlike,xmut, J, H, ppc, N, q)
-    # E0 =  sum(log.(arlike))
-    # E0=0.0
     @inbounds for i in 1:N
         Threads.@threads :static for a in 1:q
             xmut[Threads.threadid()][i] = a
@@ -38,7 +35,6 @@ function epistatic_score(arnet::ArNet, arvar::ArVar, seqid::Int; pc::Float64=0.1
             end
         end
     end
-    
     Jret = zeros(q,q,N,N)
     @inbounds for i in 1:N-1 
         for j in i+1:N
@@ -52,8 +48,7 @@ function epistatic_score(arnet::ArNet, arvar::ArVar, seqid::Int; pc::Float64=0.1
     end
     Jzsg = zsg(Jret)
     FN = compute_APC(Jzsg, N, q)
-    score = compute_ranking(FN, min_separation)
-    
+    score = compute_ranking(FN, 1)
     permtuple=Tuple{Int,Int,Float64}[]
     sizehint!(permtuple,length(permtuple))
     for s in score
@@ -61,7 +56,9 @@ function epistatic_score(arnet::ArNet, arvar::ArVar, seqid::Int; pc::Float64=0.1
         if si > sj 
             si,sj = sj,si
         end
-        push!(permtuple,(si,sj,val))
+        if sj - si >= min_separation
+            push!(permtuple,(si,sj,val))
+        end
     end
     return permtuple
 end
@@ -95,13 +92,11 @@ function correct_APC(S::Matrix)
     Si = sum(S, dims=1)
     Sj = sum(S, dims=2)
     Sa = sum(S) * (1 - 1/N)
-
     S -= (Sj * Si) / Sa
     return S
 end
 
 function compute_ranking(S::Matrix{Float64}, min_separation::Int = 5)
-
     N = size(S, 1)
     R = Array{Tuple{Int,Int,Float64}}(undef, div((N-min_separation)*(N-min_separation+1), 2))
     counter = 0
@@ -109,8 +104,6 @@ function compute_ranking(S::Matrix{Float64}, min_separation::Int = 5)
         counter += 1
         R[counter] = (i, j, S[j,i])
     end
-
     sort!(R, by=x->x[3], rev=true)
     return R
-
 end
