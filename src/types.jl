@@ -67,7 +67,7 @@ function Base.show(io::IO, arnet::ArNet)
     print(io,"ArNet [N=$N q=$q]")
 end
 
-function (A::ArNet)(x::Vector{T}) where T <: Integer 
+function (A::ArNet)(x::AbstractVector{T}) where T <: Integer
     @extract A:J H p0 idxperm
     backorder = sortperm(idxperm)
     N = length(x)
