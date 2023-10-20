@@ -19,7 +19,7 @@ DCAUtils = "1.0"
 Distributions = "0.24, 0.25"
 ExtractMacro = "1.0"
 LoopVectorization = "0.9, 0.11, 0.12"
-NLopt = "0.6"
+NLopt = "0.6, 1"
 PrecompileTools = "1"
 julia = "1.5"
 
