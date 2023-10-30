@@ -1,7 +1,7 @@
 name = "ArDCA"
 uuid = "fc7e833f-a3b9-439d-ae82-c6ad11a3e54b"
 authors = ["Andrea Pagnani", "Jeanne Trinquier", "Guido Uguzzoni", "Martin Weigt", "Francesco Zamponi" ]
-version = "0.6.1"
+version = "0.6.2"
 
 [deps]
 DCAUtils = "e41cd558-3099-4f6e-a65d-5336857e40aa"
@@ -19,7 +19,7 @@ DCAUtils = "1.0"
 Distributions = "0.24, 0.25"
 ExtractMacro = "1.0"
 LoopVectorization = "0.9, 0.11, 0.12"
-NLopt = "0.6"
+NLopt = "0.6, 1"
 PrecompileTools = "1"
 julia = "1.5"
 
