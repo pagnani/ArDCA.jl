@@ -11,7 +11,7 @@ end
 
 function computep0(var)
     @extract var:W Z q
-    pc = 1/size(Z, 2)
+    pc = 1/size(Z, 2)/10
     p0 = zeros(q)
     for i in eachindex(W)
         p0[Z[1, i]] += W[i]
