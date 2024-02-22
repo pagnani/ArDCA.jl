@@ -10,8 +10,7 @@ function read_fasta(filename::AbstractString, max_gap_fraction::Real, theta::Any
 end
 
 function computep0(var)
-    @extract var:W Z q
-    pc = 1/size(Z, 2)/10
+    @extract var:W Z q pc
     p0 = zeros(q)
     for i in eachindex(W)
         p0[Z[1, i]] += W[i]

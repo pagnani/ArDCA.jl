@@ -1,4 +1,4 @@
-struct ArVar{Ti <: Integer}
+@kwdef struct ArVar{Ti <: Integer}
     N::Int
     M::Int
     q::Int
@@ -7,10 +7,17 @@ struct ArVar{Ti <: Integer}
     lambdaH::Float64
     Z::Array{Ti,2}
     W::Array{Float64,1}
+    pc::Float64 = 1 / length(W) # Pseudocount factor for p0, defaults to 1/M
     IdxZ::Array{Int,2} # partial index computation to speed up energy calculation
     idxperm::Array{Int,1}
     
-    function ArVar(N, M, q, lambdaJ, lambdaH, Z::Array{Ti,2}, W::Array{Float64,1}, permorder::Union{Symbol,Vector{Int}}) where Ti <: Integer
+    function ArVar(
+        N, M, q, lambdaJ, lambdaH, Z::Array{Ti,2}, W::Array{Float64,1}, pc, permorder::Union{Symbol,Vector{Int}}
+    ) where Ti <: Integer
+        if pc > 1 || pc < 0
+            error("Pseudocount factor `pc` must be between 0 and 1. Got $pc")
+        end
+
         idxperm = if typeof(permorder) == Symbol
             S = entropy(Z,W)
             if permorder === :ENTROPIC
@@ -38,7 +45,7 @@ struct ArVar{Ti <: Integer}
                 IdxZ[j,i] = (j - 1) * q2 + q * (Z[j,i] - 1)
             end
         end
-        new{Ti}(N, M, q, q^2, lambdaJ, lambdaH, Z, W, IdxZ,idxperm)
+        new{Ti}(N, M, q, q^2, lambdaJ, lambdaH, Z, W, pc, IdxZ,idxperm)
     end
 end
 
