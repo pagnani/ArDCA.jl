@@ -1,4 +1,4 @@
-@kwdef struct ArVar{Ti <: Integer}
+Base.@kwdef struct ArVar{Ti <: Integer}
     N::Int
     M::Int
     q::Int
