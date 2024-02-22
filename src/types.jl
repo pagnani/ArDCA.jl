@@ -7,7 +7,7 @@
     lambdaH::Float64
     Z::Array{Ti,2}
     W::Array{Float64,1}
-    pc::Float64 = 1 / length(W) # Pseudocount factor for p0, defaults to 1/M
+    pc::Float64 = 0 # Pseudocount factor for p0, defaults to 1/M
     IdxZ::Array{Int,2} # partial index computation to speed up energy calculation
     idxperm::Array{Int,1}
     

@@ -9,7 +9,7 @@ Return two `struct`: `::ArNet` (containing the inferred hyperparameters) and `::
 Optional arguments:
 * `lambdaJ::Real=0.01` coupling L₂ regularization parameter (lagrange multiplier)
 * `lambdaH::Real=0.01` field L₂ regularization parameter (lagrange multiplier)
-* `pc_factor::Real=1/size(Z,2)` pseudocount factor for calculation of `p0`, defaults to one over the number of sequences.
+* `pc_factor::Real=0` pseudocount factor for calculation of `p0`, defaults to one over the number of sequences.
 * `epsconv::Real=1.0e-5` convergence value in minimzation
 * `maxit::Int=1000` maximum number of iteration in minimization
 * `verbose::Bool=true` set to `false` to stop printing convergence info on `stdout`
@@ -24,7 +24,7 @@ julia> arnet, arvar= ardca(Z,W,lambdaJ=0,lambdaH=0,permorder=:REV_ENTROPIC,epsco
 function ardca(Z::Array{Ti,2},W::Vector{Float64};
                 lambdaJ::Real=0.01,
                 lambdaH::Real=0.01,
-                pc_factor::Real=1/length(W),
+                pc_factor::Real=0,
                 epsconv::Real=1.0e-5,
                 maxit::Int=1000,
                 verbose::Bool=true,
