@@ -25,6 +25,7 @@ LinearAlgebra = "1.5"
 Printf = "1.5"
 Random = "1.5"
 julia = "1.5"
+Test = "1.5"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
