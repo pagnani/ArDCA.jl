@@ -67,7 +67,7 @@ We will assume we have a Multiple Sequence Alignment (MSA)in FASTA format. We ai
 2. Given a MSA, predict contacts
 3. Given a MSA, predict the mutational effect in all (ungapped) position of a given target sequence 
 
-## Load ArDCA package 
+## Load ArDCA package
 
 The following cell loads the package `ArDCA` (*Warning*: the first time it takes a while)
 
@@ -87,7 +87,9 @@ using ArDCA
 As a preliminary step, we learn the field and the coupling parameters $h,J$ from the MSA. To do so we use the `ardca` method that return the parameters (stored in `arnet` in the cell below), and the alignment in numerical format and other algorithms variables (stored in `arvar` in the cell below). The default autoregressive order is set to `:ENTROPIC`. We set the $L_2$ regularization to 0.02 for the $J$ and 0.001 for the $h$.
 
 The keyword arguments for the `ardca` method are (with their default value):
-
+* `lambdaJ::Real=0.01` coupling L₂ regularization parameter (lagrange multiplier)
+* `lambdaH::Real=0.01` field L₂ regularization parameter (lagrange multiplier)
+* `pc_factor::Real=0` pseudocount factor for calculation of `p0`
 * `epsconv::Real=1.0e-5` (convergence parameter)
 
 * `maxit::Int=1000` (maximum number of iteration - don't change)
@@ -97,7 +99,6 @@ The keyword arguments for the `ardca` method are (with their default value):
 * `method::Symbol=:LD_LBFGS` (optimization method)
 
 * `permorder::Union{Symbol,Vector{Ti}}=:ENTROPIC` (permutation order). Possible values are: `[:NATURAL, :ENTROPIC, :REV_ENTROPIC, :RANDOM]` or a custom permutation vector.
-
 
 ```
 arnet,arvar=ardca("data/PF14/PF00014_mgap6.fasta.gz", verbose=false, lambdaJ=0.02,lambdaH=0.001);

@@ -10,12 +10,12 @@ function read_fasta(filename::AbstractString, max_gap_fraction::Real, theta::Any
 end
 
 function computep0(var)
-    @extract var:W Z q
+    @extract var:W Z q pc
     p0 = zeros(q)
     for i in eachindex(W)
         p0[Z[1, i]] += W[i]
     end
-    return p0
+    return p0 * (1-pc) .+ pc/q
 end
 
 function compute_empirical_freqs(Z::AbstractArray{Ti,2}, W::AbstractVector{Float64}, q::Ti) where {Ti<:Integer}
