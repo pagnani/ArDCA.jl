@@ -321,12 +321,9 @@ of sequences. The returned vector has `M` elements reweighted by `arvar.W`
 """
 loglikelihood(arnet::ArNet, arvar::ArVar) = sum(siteloglikelihood(i,arnet,arvar) for i in 1:arvar.N)
 
-"""
-    siteloglikelihood(i::Int,arnet::ArNet, arvar::ArVar)
-Return the loglikelihood relative to site i computed from `arvar.Z` under the model
-`arnet`. 
-"""
-function siteloglikelihood(i::Int,arnet::ArNet,arvar::ArVar)
+# old version with static scheduler... leave it here for comparison
+# the new version in 5/10 times faster
+function siteloglikelihood_static(i::Int,arnet::ArNet,arvar::ArVar)
     @extract arnet:H J p0 idxperm
     @extract arvar: Z W M lambdaJ lambdaH
     q = length(p0)
@@ -362,6 +359,65 @@ function siteloglikelihood(i::Int,arnet::ArNet,arvar::ArVar)
     end
 end
 
+function _ll(site, J, H, Z, W, idx)
+    Js = J[site-1]
+    h = H[site-1]
+    T = eltype(Js)
+    q = length(h)
+    totH = Vector{T}(undef, q)
+    ll = zero(T)
+    @inbounds for μ in idx
+        copy!(totH, h)
+        @turbo for i in 1:site-1
+            for a in 1:q
+                totH[a] += Js[a, Z[i, μ], i]
+            end
+        end
+        softmax!(totH)
+        ll += log(totH[Z[site, μ]]) * W[μ]
+    end
+    return ll
+end
+
+"""
+    siteloglikelihood(i::Int,arnet::ArNet, arvar::ArVar)
+Return the loglikelihood relative to site i computed from `arvar.Z` under the model
+`arnet`. 
+"""
+function siteloglikelihood(i::Int,arnet::ArNet,arvar::ArVar)
+    @extract arnet:H J p0 idxperm
+    @extract arvar: Z W M lambdaJ lambdaH
+    q = length(p0)
+    N = length(H) # here N is N-1 !!
+    (1 ≤ i ≤ N+1) || throw(DomainError("site = $i should be in [1,$(N+1)]"))
+    backorder = sortperm(idxperm)
+    site = backorder[i]
+    
+    #ll = zeros(eltype(p0),Threads.nthreads())
+    ll1 = zero(eltype(p0))
+    if site == 1
+        for μ in 1:M
+            _p0 = softmax(p0)
+            ll1 += log(_p0[Z[site,μ]])*W[μ]
+        end
+    else
+        tasks_per_thread = 2 # customize this as needed. More tasks have more overhead, but better
+                             # load balancing
+        chunk_size = max(1, size(Z,2) ÷ (tasks_per_thread * Threads.nthreads()))
+        vec_idx_chunks = Base.Iterators.partition(1:size(Z,2), chunk_size)
+        tasks = map(vec_idx_chunks) do idx
+            Threads.@spawn _ll(site, J, H, Z, W, idx)
+        end
+        ll2 = sum(fetch, tasks)
+    end
+    if site == 1
+        return -ll1
+    else
+        Js = J[site-1]
+        h = H[site-1]
+        return -ll2 +lambdaJ * sum(abs2,Js) + lambdaH * sum(abs2,h)
+    end
+end
 
 # warning the gauge of H[:,1] is to be determined !!
 function tensorize(arnet::ArNet; tiny::Float64=1e-16)
