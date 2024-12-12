@@ -74,6 +74,7 @@ function testDCA(N, q;
     @test arnet(Z[:, 1]) == arnet(Z[:, 1:2])[:, 1]
     val1 = arnet(Z)
     @test Zcopy == Z
+    @test sum(ArDCA.siteloglikelihood_static(i,arnet,arvar) for i in 1:arvar.N) ≈ loglikelihood(arnet,arvar)
 end
 for q in 2:4
     for N in 2:5
