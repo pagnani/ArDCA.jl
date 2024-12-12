@@ -92,7 +92,7 @@ function minimize_arnet(alg::ArAlg, var::ArVar{Ti}) where Ti
     @extract alg : epsconv maxit method
     vecps = Vector{Float64}(undef,N - 1)
     θ = Vector{Float64}(undef, ((N*(N-1))>>1)*q2 + (N-1)*q)
-    Threads.@threads :static for site in 1:N-1
+    Threads.@threads for site in 1:N-1
         x0 = zeros(Float64, site * q2 + q)
         opt = Opt(method, length(x0))
         ftol_abs!(opt, epsconv)
