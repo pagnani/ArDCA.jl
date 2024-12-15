@@ -37,7 +37,7 @@ function ardca(Z::Array{Ti,2},W::Vector{Float64};
     isapprox(sum(W), 1) || throw(DomainError("sum(W) ≠ 1. Consider normalizing the vector W"))
     Z_copy = copy(Z)
     N, M = size(Z_copy)
-    M = length(W)
+    M == length(W) || throw(DimensionMismatch("columns in Z must match length of W"))
     q = Int(maximum(Z_copy))
     aralg = ArAlg(method, verbose, epsconv, maxit)
     arvar = ArVar(N, M, q, lambdaJ, lambdaH, Z_copy, W, pc_factor, permorder)
