@@ -1,4 +1,3 @@
-
 function epistatic_score(arnet::ArNet, arvar::ArVar, seqid::Int; pc::Float64=0.1,min_separation::Int=1)
     @extract arnet : H J p0 idxperm
     @extract arvar : Z M N q 
@@ -9,28 +8,33 @@ function epistatic_score(arnet::ArNet, arvar::ArVar, seqid::Int; pc::Float64=0.1
     Dab = zeros(q,q,N,N)
 
     xori = Z[:,seqid]
-    xmut = [copy(xori) for _ in 1:Threads.nthreads()] 
-    arlike = [zeros(N) for _ in 1:Threads.nthreads()]
+    
     ppc = (1-pc) * p0 + pc * ones(q)/q
-    @inbounds for i in 1:N
-        Threads.@threads :static for a in 1:q
-            xmut[Threads.threadid()][i] = a
-            _outputarnet!(arlike[Threads.threadid()],xmut[Threads.threadid()], J, H, ppc, N, q)
-            Da[a,i] = -sum(log.(arlike[Threads.threadid()]))
-            xmut[Threads.threadid()][i] = xori[i]
+    Da = zeros(q,N)
+    Dab = zeros(q,q,N,N)
+    Threads.@threads for i in 1:N
+        xmut = copy(xori) 
+        arlike = Array{Float64}(undef,N)
+        for a in 1:q
+            xmut[i] = a
+            _outputarnet!(arlike,xmut, J, H, ppc, N, q)
+            Da[a,i] = -sum(log,arlike)
+            xmut[i] = xori[i]
         end
     end  
-    @inbounds for i in 1:N-1
-        Threads.@threads :static for a in 1:q
-            xmut[Threads.threadid()][i] = a
+    Threads.@threads for i in 1:N-1
+        xmut = copy(xori) 
+        arlike = Array{Float64}(undef,N)
+         for a in 1:q
+            xmut[i] = a
             for j in i+1:N
                  for b in 1:q
-                    xmut[Threads.threadid()][i] = a
-                    xmut[Threads.threadid()][j] = b
-                    _outputarnet!(arlike[Threads.threadid()],xmut[Threads.threadid()],J,H,ppc,N,q)        
-                    Dab[b,a,j,i] = -sum(log.(arlike[Threads.threadid()]))
-                    xmut[Threads.threadid()][i] = xori[i]
-                    xmut[Threads.threadid()][j] = xori[j]
+                    xmut[i] = a
+                    xmut[j] = b
+                    _outputarnet!(arlike,xmut,J,H,ppc,N,q)        
+                    Dab[b,a,j,i] = -sum(log,arlike)
+                    xmut[i] = xori[i]
+                    xmut[j] = xori[j]
                 end
             end
         end
@@ -62,6 +66,8 @@ function epistatic_score(arnet::ArNet, arvar::ArVar, seqid::Int; pc::Float64=0.1
     end
     return permtuple
 end
+
+
 
 function zsg(J::Array{Float64,4})
     q,q,N,N = size(J)
